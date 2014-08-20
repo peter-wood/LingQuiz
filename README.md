@@ -18,5 +18,10 @@ LingQuiz is a node.js project. It uses the following software / packages:
 * angular js
 * bootstrap
 
+Notes
+=====
+
+* If npm install fails with an error in q.js, downgrade tmp (in node_modules/bower/package.json to 0.0.23
+
 
 **Please contact me for comments, suggestions.**
