@@ -3,7 +3,7 @@
 /* Controllers */
 
 angular.module('myApp.controllers', [])
-  .controller('AuthCtrl', ['$scope', '$http', '$rootScope', '$httpProvider', function($scope, $http, $rootScope, $httpProvider) {
+  .controller('AuthCtrl', ['$scope', '$http', '$rootScope', function($scope, $http, $rootScope) {
     $scope.creds = {
        nsid: '',
        snum: '',
@@ -16,7 +16,8 @@ angular.module('myApp.controllers', [])
         console.log('headers: ' + headers('Pragma'));
         console.log('config: ' + config);
 	creds.authkey = headers('Pragma');
-	$httpProvider.defaults.headers.common['Authentication'] = 'Basic ' + creds.authkey;
+	console.log(JSON.stringify($http.defaults.headers.common));
+	//$http.defaults.headers.common['Authentication'] = 'Basic ' + creds.authkey;
 	$rootScope.credentials = creds;
      })
      .error(function(data, status, headers, config) {
