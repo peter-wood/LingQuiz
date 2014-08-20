@@ -22,6 +22,7 @@ Notes
 =====
 
 * If npm install fails with an error in q.js, downgrade tmp (in node_modules/bower/package.json to 0.0.23
+* Create a symbolic link to the bower_components dir in the app dir
 
 
 **Please contact me for comments, suggestions.**
