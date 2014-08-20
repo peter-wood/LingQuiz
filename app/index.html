@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html lang="en" ng-app="myApp" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html lang="en" ng-app="myApp" class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html lang="en" ng-app="myApp" class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="en" ng-app="myApp" class="no-js"> <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Linguistics 111 Resources</title>
+  <meta name="description" content="Resources for Ling 111 students at the UofS">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
+        <style>
+            body {
+                padding-top: 50px;
+                padding-bottom: 20px;
+            }
+        </style>
+        <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap-theme.min.css">
+	<!-- <link rel="stylesheet" href="css/app.css"/> -->
+        <script src="bower_components/html5-boilerplate/js/vendor/modernizr-2.6.2.min.js"></script>
+        <script src="bower_components/angular/angular.js"></script>
+        <script src="bower_components/angular-route/angular-route.js"></script>
+	<script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
+</head>
+<body class="ng-cloak">
+   <!--[if lt IE 7]>
+    <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+   <![endif]-->
+
+
+    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse" ng-click="isCollapsed = !isCollapsed">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+        </div>
+        <div class="navbar-collapse collapse">
+	  <ul class="nav navbar-nav">
+          <a class="navbar-brand" href="#">Linguistics 111 Resources</a>
+	  <li class="dropdown">
+	      <a role="button" class="dropdown-toggle">
+                  Menu <b class="caret"></b>
+              </a>
+              <ul class="dropdown-menu">
+                 <li><a href="Slides">Slides</a></li>
+                 <li><a href="Textbook">Textbook</a></li>
+                 <li><a href="Handouts">Handouts</a></li>
+                 <li><a href="Quizzes">Quizzes</a></li>
+                 <li><a href="Wiki">Wiki</a></li>
+             </ul>
+          </li>
+          </ul>
+          <form class="navbar-form navbar-right" role="form" ng-controller="AuthCtrl" ng_submit="login(creds)">
+            <div class="input-group">
+	      <span class="input-group-addon">NSID:</span>
+              <input type="text" placeholder="Your NSID" class="form-control" ng-model="creds.nsid">
+            </div>
+            <div class="input-group">
+	      <span class="input-group-addon">Student No.:</span>
+              <input type="password" placeholder="Your student number" class="form-control" ng-model="creds.snum">
+            </div>
+            <button type="submit" class="btn btn-success">Sign in</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main jumbotron for a primary marketing message or call to action -->
+    <div class="jumbotron">
+      <div class="container">
+        <h1>Welcome</h1>
+        <p>Here you can find resources for Linguistics 111. To access some of the material, you will need to be signed in.</p>
+      </div>
+    </div>
+    <div class="container">
+      <!-- Example row of columns -->
+      <div class="row">
+
+        <div class="col-md-4">
+          <h2>Textblock</h2>
+          <p>NSID: {{credentials.nsid}}</p>
+          <p>SNUM: {{credentials.snum}}</p>
+          <p>authkey: {{credentials.authkey}}</p>
+          <p><a class="btn btn-default" href="#" role="button">Link&raquo;</a></p>
+        </div>
+
+        <div class="col-md-4">
+          <h2>Heading</h2>
+		  <ul class="menu">
+		    <li><a href="#/view1">view1</a></li>
+		    <li><a href="#/view2">view2</a></li>
+		  </ul>
+
+
+		  <div ng-view></div>
+
+			  <div>Angular seed app: v<span app-version></span></div>
+
+          <p><a class="btn btn-default" href="#" role="button">View details &raquo;</a></p>
+       </div>
+
+        <div class="col-md-4">
+          <h2>Textblock</h2>
+          <p>Nothing here.</p>
+          <p><a class="btn btn-default" href="#" role="button">Link&raquo;</a></p>
+        </div>
+
+      </div>
+
+      <hr>
+
+      <footer>
+        <p>&copy; Company 2014</p>
+      </footer>
+   <script src="js/app.js"></script>
+  <script src="js/services.js"></script>
+  <script src="js/controllers.js"></script>
+  <script src="js/filters.js"></script>
+  <script src="js/directives.js"></script>
+</body>
+</html>
