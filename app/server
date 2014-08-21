@@ -49,13 +49,13 @@ app.use('/auth', function(req, res) {
 	}
 });
 
-app.use('/js', express.static(__dirname + '/js'));
-app.use('/css', express.static(__dirname + '/css'));
-app.use('/partials', express.static(__dirname + '/partials'));
-app.use('/bower_components', express.static(__dirname + '/bower_components'));
+app.use('/js', express.static('./js'));
+app.use('/css', express.static('./css'));
+app.use('/partials', express.static('./partials'));
+app.use('/bower_components', express.static('./bower_components'));
 
-app.all('/*', function(req, res, next) {
-	res.sendfile('index.html', { root: __dirname });
+app.all('*', function(req, res, next) {
+	res.sendfile('index.html');
 });
 
 app.listen(8000);
