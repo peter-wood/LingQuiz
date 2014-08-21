@@ -3,27 +3,48 @@
 
 // Declare app level module which depends on filters, and services
 angular.module('myApp', [
-  'ngRoute',
+  'ui.router',
   'ui.bootstrap',
   'myApp.filters',
   'myApp.services',
   'myApp.directives',
   'myApp.controllers'
 ]).
-config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
-  $routeProvider.when('/slides', {templateUrl: 'partials/slides.html', controller: 'SlidesCtrl'});
-  $routeProvider.when('/book', {templateUrl: 'partials/book.html', controller: 'BookCtrl'});
-  $routeProvider.when('/handouts', {templateUrl: 'partials/handouts.html', controller: 'HandoutsCtrl'});
-  $routeProvider.when('/quizzes', {templateUrl: 'partials/quizzes.html', controller: 'QuizzesCtrl'});
-  $routeProvider.when('/wiki', {templateUrl: 'partials/wiki.html'});
-  $routeProvider.when('/main', {templateUrl: 'partials/main.html', controller: 'MainCtrl'});
-  $routeProvider.otherwise({redirectTo: '/main'});
-$locationProvider.html5Mode(true);
+config(['$stateProvider', '$urlRouterProvider', '$locationProvider', function($stateProvider, $urlRouterProvider, $locationProvider) {
+  $locationProvider.html5Mode(true);
 
-//  $routeProvider.when('/view1', {templateUrl: 'partials/partial1.html', controller: 'MyCtrl1'});
-//  $routeProvider.when('/view2', {templateUrl: 'partials/partial2.html', controller: 'MyCtrl2'});
-//  $routeProvider.otherwise({redirectTo: '/view1'});
+  $urlRouterProvider.otherwise("main");
 
+  $stateProvider
+    .state("main", {
+      url: "/main",
+      templateUrl: "partials/main.html",
+      controller: "MainCtrl"
+    })
+    .state("slides", {
+      url: "/slides",
+      templateUrl: "partials/slides.html",
+      controller: "SlidesCtrl"
+    })
+    .state("book", {
+      url: "/book",
+      templateUrl: "partials/book.html",
+      controller: "BookCtrl"
+    })
+    .state("handouts", {
+      url: "/handouts",
+      templateUrl: "partials/handouts.html",
+      controller: "HandoutsCtrl"
+    })
+    .state("quizzes", {
+      url: "/quizzes",
+      templateUrl: "partials/quizzes.html",
+      controller: "QuizzesCtrl"
+    })
+    .state("wiki", {
+      url: "/wiki",
+      templateUrl: "partials/wiki.html"
+    });
 }])
 .run(function($http) {
 	$http.defaults.headers.common.Authorization = "Basic invalid"
