@@ -16,8 +16,8 @@ angular.module('myApp.controllers', [])
         console.log('headers: ' + headers('Pragma'));
         console.log('config: ' + config);
 	creds.authkey = headers('Pragma');
+	$http.defaults.headers.common['Authentication'] = 'Basic ' + creds.authkey;
 	console.log(JSON.stringify($http.defaults.headers.common));
-	//$http.defaults.headers.common['Authentication'] = 'Basic ' + creds.authkey;
 	$rootScope.credentials = creds;
      })
      .error(function(data, status, headers, config) {
@@ -25,9 +25,18 @@ angular.module('myApp.controllers', [])
      });
     }
   }])
-  .controller('MyCtrl1', ['$scope', function($scope) {
+  .controller('MainCtrl', ['$scope', function($scope) {
 
   }])
-  .controller('MyCtrl2', ['$scope', function($scope) {
+  .controller('SlidesCtrl', ['$scope', function($scope) {
+
+  }])
+  .controller('BookCtrl', ['$scope', function($scope) {
+
+  }])
+  .controller('HandoutsCtrl', ['$scope', function($scope) {
+
+  }])
+  .controller('QuizzesCtrl', ['$scope', function($scope) {
 
   }]);

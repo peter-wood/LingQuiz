@@ -2,11 +2,19 @@
 var express = require('express');
 var auth = require('./js/auth.js');
 var app = express();
+
+var logAll = function(req, res, next) {
+	console.log(req.headers);
+	next()
+};
+
+app.use(logAll);
+
 app.use(express.static(__dirname));
 
 
 app.use('/quiz', function(req, res) {
-	console.log(req.headers);
+	console.log('quiz requested');
 	;
 });
 
