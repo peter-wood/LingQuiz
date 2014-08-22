@@ -3,7 +3,7 @@
 /* Controllers */
 
 angular.module('myApp.controllers', [])
-  .controller('AuthCtrl', ['$scope', '$http', '$rootScope', function($scope, $http, $rootScope) {
+  .controller('AuthCtrl', ['$scope', '$http', '$rootScope', '$location', function($scope, $http, $rootScope, $location) {
     $scope.creds = {
        nsid: '',
        snum: '',
@@ -15,13 +15,20 @@ angular.module('myApp.controllers', [])
 	   creds.storedKey = creds.authkey;
 	   sessionStorage.setItem("authkey", creds.authkey);
 	   $http.defaults.headers.common['Authorization'] = 'Basic ' + creds.authkey;
-	   console.log(JSON.stringify($http.defaults.headers.common));
 	   $rootScope.credentials = creds;
+	   console.log('location: ' + $location.url('loggedIn'));
      })
      .error(function(data, status, headers, config) {
 	   console.log('Error: ' + data + "Status: " + status );
      });
     }
+  }])
+  .controller('NavCtrl', ['$scope', '$route', function($scope, $route) {
+	  $scope.val = Date.parse(Date());
+	  $scope.update = function(target) {
+		  console.log('forcing update to ' + target);
+		  $route.reload();
+	  };
   }])
   .controller('MainCtrl', ['$scope', function($scope) { 
 

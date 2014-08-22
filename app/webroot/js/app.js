@@ -3,7 +3,7 @@
 
 // Declare app level module which depends on filters, and services
 angular.module('myApp', [
-  'ui.router',
+  'ngRoute',
   'ui.bootstrap',
   'myApp.filters',
   'myApp.services',
@@ -16,37 +16,34 @@ angular.module('myApp', [
   $locationProvider.html5Mode(true);
 }])
 
-.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider) {
-  $urlRouterProvider.otherwise("main");
-  $stateProvider
-    .state("main", {
-      url: "/main",
+.config(['$routeProvider', function($routeProvider) {
+  $routeProvider
+    .when("/main", {
       templateUrl: "partials/main.html",
       controller: "MainCtrl"
     })
-    .state("slides", {
-      url: "/slides",
+    .when("/slides", {
       templateUrl: "partials/slides.html",
       controller: "SlidesCtrl"
     })
-    .state("book", {
-      url: "/book",
+    .when("/book", {
       templateUrl: "partials/book.html",
       controller: "BookCtrl"
     })
-    .state("handouts", {
-      url: "/handouts",
+    .when("/handouts", {
       templateUrl: "partials/handouts.html",
       controller: "HandoutsCtrl"
     })
-    .state("quizzes", {
-      url: "/quizzes",
+    .when("/quizzes", {
       templateUrl: "partials/quizzes.html",
       controller: "QuizzesCtrl"
     })
-    .state("wiki", {
+    .when("/wiki", {
       url: "/wiki",
       templateUrl: "partials/wiki.html"
+    })
+    .otherwise( {
+      redirectTo: "/main"
     });
 }])
 
