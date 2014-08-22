@@ -11,17 +11,13 @@ angular.module('myApp.controllers', [])
     $scope.login = function(creds) {
       $http({url: 'http://localhost:8000/auth', method: 'POST', data: JSON.stringify({'nsid': creds.nsid, 'snum': creds.snum})})
      .success(function(data, status, headers, config) {
-        console.log('data: ' + data);
-        console.log('status: ' + status);
-        console.log('headers: ' + headers('Pragma'));
-        console.log('config: ' + config);
-	creds.authkey = headers('Pragma');
-	$http.defaults.headers.common['Authentication'] = 'Basic ' + creds.authkey;
-	console.log(JSON.stringify($http.defaults.headers.common));
-	$rootScope.credentials = creds;
+	   creds.authkey = headers('Pragma');
+	   $http.defaults.headers.common['Authentication'] = 'Basic ' + creds.authkey;
+	   console.log(JSON.stringify($http.defaults.headers.common));
+	   $rootScope.credentials = creds;
      })
      .error(function(data, status, headers, config) {
-	console.log('Error: ' + data + "Status: " + status );
+	   console.log('Error: ' + data + "Status: " + status );
      });
     }
   }])
