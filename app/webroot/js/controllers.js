@@ -12,7 +12,7 @@ angular.module('myApp.controllers', [])
       $http({url: 'http://localhost:8000/auth', method: 'POST', data: JSON.stringify({'nsid': creds.nsid, 'snum': creds.snum})})
      .success(function(data, status, headers, config) {
 	   creds.authkey = headers('Pragma');
-	   $http.defaults.headers.common['Authentication'] = 'Basic ' + creds.authkey;
+	   $http.defaults.headers.common['Authorization'] = 'Basic ' + creds.authkey;
 	   console.log(JSON.stringify($http.defaults.headers.common));
 	   $rootScope.credentials = creds;
      })

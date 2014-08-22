@@ -8,13 +8,16 @@ angular.module('myApp', [
   'myApp.filters',
   'myApp.services',
   'myApp.directives',
+  'myApp.factories',
   'myApp.controllers'
-]).
-config(['$stateProvider', '$urlRouterProvider', '$locationProvider', function($stateProvider, $urlRouterProvider, $locationProvider) {
+])
+
+.config(['$locationProvider', function($locationProvider) {
   $locationProvider.html5Mode(true);
+}])
 
+.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider) {
   $urlRouterProvider.otherwise("main");
-
   $stateProvider
     .state("main", {
       url: "/main",
@@ -46,6 +49,15 @@ config(['$stateProvider', '$urlRouterProvider', '$locationProvider', function($s
       templateUrl: "partials/wiki.html"
     });
 }])
+
+.config(['$httpProvider',  function($httpProvider) {
+    $httpProvider.interceptors.push('myInterceptor');
+}])
+
+.run(['$rootScope', function($rootScope) {
+    $rootScope.credentials = {};
+}])
+
 .run(function($http) {
 	$http.defaults.headers.common.Authorization = "Basic invalid"
 }) ;
