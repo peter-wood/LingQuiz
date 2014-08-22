@@ -56,6 +56,8 @@ angular.module('myApp', [
 
 .run(['$rootScope', function($rootScope) {
     $rootScope.credentials = {};
+    // sessionStorage.setItem("authkey", "I am initialzed in module.run");
+    $rootScope.credentials.storedKey = sessionStorage.getItem("authkey");
 }])
 
 .run(function($http) {

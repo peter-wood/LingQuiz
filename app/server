@@ -4,8 +4,7 @@ var auth = require('./server_files/auth.js');
 var app = express();
 
 var logAll = function(req, res, next) {
-	console.log(req.headers);
-    console.log('\n\n');
+	if (req.headers.authorization) console.log(req.headers.authorization);
 	next()
 };
 

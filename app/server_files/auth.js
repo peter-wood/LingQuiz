@@ -37,7 +37,7 @@ var purgeAuth = function() {
 };
 
 var printAuth = function() {
-	console.log(JSON.stringify(authenticated));
+	console.log("Auth module: " + JSON.stringify(authenticated));
 };
 
 // returns true if request has a valid authkey

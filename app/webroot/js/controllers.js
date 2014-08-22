@@ -12,6 +12,8 @@ angular.module('myApp.controllers', [])
       $http({url: 'http://localhost:8000/auth', method: 'POST', data: JSON.stringify({'nsid': creds.nsid, 'snum': creds.snum})})
      .success(function(data, status, headers, config) {
 	   creds.authkey = headers('Pragma');
+	   creds.storedKey = creds.authkey;
+	   sessionStorage.setItem("authkey", creds.authkey);
 	   $http.defaults.headers.common['Authorization'] = 'Basic ' + creds.authkey;
 	   console.log(JSON.stringify($http.defaults.headers.common));
 	   $rootScope.credentials = creds;
@@ -21,7 +23,7 @@ angular.module('myApp.controllers', [])
      });
     }
   }])
-  .controller('MainCtrl', ['$scope', function($scope) {
+  .controller('MainCtrl', ['$scope', function($scope) { 
 
   }])
   .controller('SlidesCtrl', ['$scope', function($scope) {
