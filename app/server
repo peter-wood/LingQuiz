@@ -2,8 +2,8 @@
 var express = require('express');
 var mongo = require('./lib/db.js');
 mongo.connect()
-// mongo.init();
-// mongo.printAll();
+mongo.init();
+mongo.printAll();
 // mongo.deleteAll();
 // mongo.printAll();
 

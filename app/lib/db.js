@@ -1,4 +1,5 @@
 var mongoose = require('mongoose');
+var crypto = require('crypto');
 var db;
 
 var connect = function() {
@@ -68,6 +69,22 @@ var addUser = function(nsid, snum, expires, salt) {
         u.success();
     });
 };
+
+var haveUser = function(nsid, pass, cb) {
+    var u = user.findOne({nsid: nsid})
+        .select('snum')
+        .exec(function(err, u) {
+            console.log('db lookup for: ' + nsid + ' = ' + u.snum);
+            if (err) cb(false);
+            if (u.length === 0) cb (false);
+            var myNum = crypto.createHash('md5');
+            myNum.update(pass);
+            if (myNum.digest('hex') != pass)  cb(false);
+            console.log('db found user');
+            cb (true);
+            });
+    }
+
             
 
 
@@ -76,6 +93,7 @@ mongo.connect = connect;
 mongo.init = init;
 mongo.printAll = printAll;
 mongo.deleteAll = deleteAll;
+mongo.haveUser = haveUser;
 
 module.exports = mongo;
 

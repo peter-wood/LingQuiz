@@ -9,7 +9,7 @@ angular.module('myApp.controllers', [])
        snum: '',
     };
     $scope.login = function(creds) {
-      $http({url: 'http://localhost:8000/auth', method: 'POST', data: JSON.stringify({'nsid': creds.nsid, 'snum': creds.snum})})
+      $http({url: 'http://localhost:8000/auth', method: 'POST', data: JSON.stringify({'nsid': creds.nsid, 'pass': SparkMD5.hash(creds.snum)})})
      .success(function(data, status, headers, config) {
 	   creds.authkey = headers('Pragma');
 	   creds.storedKey = creds.authkey;

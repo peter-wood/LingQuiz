@@ -20,19 +20,21 @@ router.post('/', function(req, res) {
                  req.on('end', function() {
 			if (!flag) { // data seems valid
 				var nsid = JSON.parse(data)['nsid'];
-				var snum = JSON.parse(data)['snum'];
-				var key = auth.addKey(nsid, snum);
-				if (!key) {			// got no key :-(
-					res.setHeader('Pragma', 'invalid');
-					console.log('User not found in db');
-				} else { 			// got valid key :-)
-					res.setHeader('Pragma', key);
-					console.log('User found in db');
-				}
-				console.log('returning authkey: ' + key);
-				res.writeHead(200, {'Content-Type': 'text/html'});
-				res.end('<!doctype html><html><body>Thanks</body></html>');
-				}
+				var snum = JSON.parse(data)['pass'];
+                console.log('auth got: ' + nsid + ', ' + snum);
+				auth.addKey(nsid, snum, function(key) {
+                    if (key==='invalid') {			// got no key :-(
+                        res.setHeader('Pragma', 'invalid');
+                        console.log('User not found in db');
+                    } else { 			// got valid key :-)
+                        res.setHeader('Pragma', key);
+                        console.log('User found in db');
+                    }
+                    console.log('returning authkey: ' + key);
+                    res.writeHead(200, {'Content-Type': 'text/html'});
+                    res.end('<!doctype html><html><body>Thanks</body></html>');
+                });
+            };
 		 });
 });
 

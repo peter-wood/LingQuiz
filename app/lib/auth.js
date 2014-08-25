@@ -1,30 +1,37 @@
 // authentication routines
 
 var uuid = require('uuid');
+var db = require('./db.js');
 
 var authenticated = {}; // holds all authenticated users
 
 // look up user in database
 // dummy for now
-var inDb = function (user, pass) {
-	return true;
+var inDb = function (user, pass, cb) {
+	db.haveUser(user,pass, cb);
 };
 
 
 // add a user 
 // to do: look up in db
-var addKey = function(user, pass) {
-	if (!inDb(user, pass)) {return false; }
-	var element = {
-		'user': user,
-		'pass': pass,
-		'expires': Date.parse(Date()) + (10 * 60 * 1000) // expires after 10 min. of inactivity
-	}
-	var key = uuid.v4();
-	authenticated[key] = element;
-	printAuth();
-	return key;
+var addKey = function(user, pass, cb) {
+    var key;
+	inDb(user, pass, function(result) {
+       if (!result) key = 'invalid'; 
+       else {
+           var element = {
+		        'user': user,
+		        'pass': pass,
+                'expires': Date.parse(Date()) + (10 * 60 * 1000) // expires after 10 min. of inactivity
+	       }
+	       key = uuid.v4();
+           authenticated[key] = element;
+	       printAuth();
+       }
+  cb(key);
+  });
 };
+
 
 // purge all expired authentications
 var purgeAuth = function() {
