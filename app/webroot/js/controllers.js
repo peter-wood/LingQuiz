@@ -31,7 +31,8 @@ angular.module('myApp.controllers', [])
 	  };
   }])
   .controller('MainCtrl', ['$scope', function($scope) { 
-
+    $scope.hash_test = SparkMD5.hash('Peter');
+    // $scope.hash_test = 'Peter';
   }])
   .controller('SlidesCtrl', ['$scope', function($scope) {
 
