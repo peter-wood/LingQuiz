@@ -46,13 +46,13 @@
 	      <a role="button" class="dropdown-toggle">
                   Menu <b class="caret"></b>
               </a>
-              <ul class="dropdown-menu" ng-controller="NavCtrl">
-		      <li><a ng-href="/main?id={{val}}" ng-click="update()">Home</a></li>
-		      <li><a ng-href="/slides?id={{Date.parse(Date())}}" ng-click="update()">Slides</a></li>
-		      <li><a ng-href="/book?id={{Date.parse(Date())}}" ng-click="update()">Textbook</a></li>
-		      <li><a ng-href="/handouts?id={{Date.parse(Date())}}" ng-click="update()">Handouts</a></li>
-		      <li><a ng-href="/quizzes?id={{Date.parse(Date())}}" ng-click="update()">Quizzes</a></li>
-		      <li><a ng-href="/wiki?id={{Date.parse(Date())}}" ng-click="update()">Wiki</a></li>
+              <ul class="dropdown-menu">
+		      <li><a ng-href="/main">Home</a></li>
+		      <li><a ng-href="/slides">Slides</a></li>
+		      <li><a ng-href="/book">Textbook</a></li>
+		      <li><a ng-href="/handouts">Handouts</a></li>
+		      <li><a ng-href="/quizzes">Quizzes</a></li>
+		      <li><a ng-href="/wiki">Wiki</a></li>
              </ul>
           </li>
           </ul>
@@ -76,7 +76,6 @@
       <hr>
 
       <footer ng-controller="NavCtrl">
-	<p>{{test}}</p>
         <p>&copy; Peter Wood 2014</p>
       </footer>
    <script src="/js/app.js"></script>

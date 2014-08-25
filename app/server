@@ -21,19 +21,20 @@ var fs = require('fs');
 var auth = require('./routes/authenticate');
 var main = require('./routes/main');
 
-app.use('/', main);
-app.use('/auth', auth);
-app.use('/js', express.static('./webroot/js'));
-app.use('/css', express.static('./webroot/css'));
-app.use('/partials', express.static('./webroot/partials'));
-app.use('/bower_components', express.static('./webroot/bower_components'));
-
-app.all('*', function(req, res, next) {
+app.use('/error', function(req, res, next) {
     res.writeHead(404, 'Not Found', {'Content-Type': 'text/html'});
     fs.readFile('./webroot/error.html', {encoding: 'utf8'}, function(err, data) {
         if (err) throw err;
         res.end(data);
         });
 });
+app.use('/auth', auth);
+app.use('/js', express.static('./webroot/js'));
+app.use('/css', express.static('./webroot/css'));
+app.use('/partials', express.static('./webroot/partials'));
+app.use('/bower_components', express.static('./webroot/bower_components'));
+app.all('*', function(req, res, next) {
+    res.sendfile('./webroot/index.html');
+    });
 
 app.listen(8000);
