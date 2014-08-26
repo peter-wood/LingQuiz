@@ -5,15 +5,15 @@ var db;
 var connect = function() {
     mongoose.connect('mongodb://localhost/LingTest');
     db = mongoose.connection;
-    db.on('error', console.error.bind(console, 'connection error:'));
+    db.on('error', console.log.bind(console, 'connection error:'));
     db.once('open', console.log.bind(console, 'connection established'));
 };
 
 var mySchema = mongoose.Schema( {
     nsid: String,
     snum: Number,
-    expires: Number,
-    salt: String});
+    quizzes: Object,
+    reserved: Object});
 
 mySchema.methods.success = function() {
         console.log( 'saved record for ' + this.nsid);
@@ -22,9 +22,9 @@ mySchema.methods.success = function() {
 var user = mongoose.model('User', mySchema);
 
 var testingData = [
-    {nsid: 'pew191', snum: 1234, expires: 1234, salt: 'salt1'},
-    {nsid: 'aat123', snum: 5678, expires: 5678, salt: 'salt2'},
-    {nsid: 'sts456', snum: 9012, expires: 9012, salt: 'salt3'}];
+    {nsid: 'pew191', snum: 1234, quizzes: null, reserved: null},
+    {nsid: 'aat123', snum: 5678, quizzes: {test: 5678}, reserved: {test: 'salt2'}},
+    {nsid: 'sts456', snum: 9012, quizzes: null, reserved: null}];
 
 
 var init = function () {
@@ -32,8 +32,8 @@ var init = function () {
         console.log('creating: ' + JSON.stringify(testingData[index]));
         addUser(testingData[index].nsid,
             testingData[index].snum,
-            testingData[index].expires,
-            testingData[index].salt);
+            testingData[index].quizzes,
+            testingData[index].reserved);
     };
 };
 
@@ -70,20 +70,36 @@ var addUser = function(nsid, snum, expires, salt) {
     });
 };
 
-var haveUser = function(nsid, pass, cb) {
-    var u = user.findOne({nsid: nsid})
-        .select('snum')
-        .exec(function(err, u) {
-            console.log('db lookup for: ' + nsid + ' = ' + u.snum);
-            if (err) cb(false);
-            if (u.length === 0) cb (false);
-            var myNum = crypto.createHash('md5');
-            myNum.update(pass);
-            if (myNum.digest('hex') != pass)  cb(false);
+// holds address for current callback function (not very ellegant)
+var currentCallback = null;
+var currentPass = null;
+
+// helper function for haveUser()
+var checkPass = function(err, u) {
+    console.log('in checkPass');
+    var result = false;
+    if (err === null && u != null ) {
+        console.log('found snum: %s for nsid: %s',  u.snum, u.nsid);
+        var myNum = crypto.createHash('md5')
+            .update(String(u.snum), 'utf8')
+            .digest('hex'); 
+        console.log('my md5: %s', myNum);
+        if (myNum === currentPass) {
+            result = true;
             console.log('db found user');
-            cb (true);
-            });
+        }
     }
+    currentCallback (result);
+}
+
+var haveUser = function(nsid, pass, cb) {
+    currentCallback = cb;
+    currentPass = pass;
+    console.log('haveUser called with nsid: %s, and pass: %s', nsid, pass);
+    var query = user.findOne({nsid: nsid});
+    query.select('nsid snum');
+    query.exec(checkPass);
+}
 
             
 

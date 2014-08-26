@@ -42,7 +42,15 @@ angular.module('myApp', [
       url: "/wiki",
       templateUrl: "partials/wiki.html"
     })
-    .otherwise( {
+    .when("/loggedIn", {
+      url: "/loggedIn",
+      templateUrl: "partials/loggedIn.html"
+    })
+     .when("/sorry", {
+      url: "/sorry",
+      templateUrl: "partials/sorry.html"
+    })
+     .otherwise( {
       redirectTo: "/main"
     });
 }])

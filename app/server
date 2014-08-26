@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 var express = require('express');
 var mongo = require('./lib/db.js');
+var cookieParser = require('cookie-parser');
 mongo.connect()
 mongo.init();
 mongo.printAll();

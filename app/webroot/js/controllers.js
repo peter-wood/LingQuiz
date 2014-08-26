@@ -2,21 +2,29 @@
 
 /* Controllers */
 
-angular.module('myApp.controllers', [])
-  .controller('AuthCtrl', ['$scope', '$http', '$rootScope', '$location', function($scope, $http, $rootScope, $location) {
+angular.module('myApp.controllers', ['ngCookies'])
+  .controller('AuthCtrl', ['$scope', '$http', '$rootScope', '$location', '$cookies', function($scope, $http, $rootScope, $location, $cookies) {
     $scope.creds = {
        nsid: '',
        snum: '',
+       storedKey: ''
     };
     $scope.login = function(creds) {
       $http({url: 'http://localhost:8000/auth', method: 'POST', data: JSON.stringify({'nsid': creds.nsid, 'pass': SparkMD5.hash(creds.snum)})})
      .success(function(data, status, headers, config) {
-	   creds.authkey = headers('Pragma');
-	   creds.storedKey = creds.authkey;
-	   sessionStorage.setItem("authkey", creds.authkey);
-	   $http.defaults.headers.common['Authorization'] = 'Basic ' + creds.authkey;
-	   $rootScope.credentials = creds;
-	   console.log('location: ' + $location.url('loggedIn'));
+       console.log(data);
+       var key = data.replace(/.*key:/,'');
+       key = key.replace(/<\/body.*/, '');
+       console.log(key);
+       $cookies.LingKey = key;
+       creds.storedKey = key;
+       $rootScope.credentials = creds;
+       if (key != 'invalid') {
+           $location.path('/loggedIn');
+       } 
+       else {
+           $location.path('/sorry');
+       }
      })
      .error(function(data, status, headers, config) {
 	   console.log('Error: ' + data + "Status: " + status );
