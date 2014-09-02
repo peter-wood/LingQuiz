@@ -48,7 +48,44 @@ angular.module('myApp.controllers', ['ngCookies'])
   .controller('BookCtrl', ['$scope', function($scope) {
 
   }])
-  .controller('HandoutsCtrl', ['$scope', function($scope) {
+  .controller('HandoutsCtrl', ['$scope', '$http',  function($scope, $http) {
+      $scope.result=[];
+      $scope.valid=false;
+
+    $scope.callGet = function() {
+          console.log('callGet called');
+          $http({url: 'http://localhost:8000/resources', method: 'GET'})
+              .error(function(data, status, headers, config) {
+                   console.log('Error: ' + data + "Status: " + status );
+                   $scope.valid=false;
+              })
+              .success(function(data, status, headers, config) {
+                  if (data.result === -1) {
+                      $scope.valid=false;
+                      return;
+                  } else {
+                      $scope.valid=true;
+                      $scope.result = data.result;
+                  }
+              })
+      }
+
+      $scope.download = function(fileName) {
+          console.log('download called');
+          console.log(fileName);
+          $http({url: 'http://localhost:8000/download', method: 'POST', data: {'file': fileName}})
+              .error(function(data, status, headers, config) {
+                   console.log('Error: ' + data + "Status: " + status );
+              })
+              .success(function(data, status, headers, config) {
+                  $scope.access='granted';
+                  $scope.result = ['Done'];
+                  console.log('download started...');
+                  console.log(data, status, headers);
+              })
+}
+
+  $scope.callGet();
 
   }])
   .controller('QuizzesCtrl', ['$scope', function($scope) {

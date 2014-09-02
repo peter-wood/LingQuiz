@@ -1,14 +1,15 @@
-<div class="container">
-	<div class="row">
-		<div class="col-md-4">
-			<h2>Handouts</h2>
-			<p>localStorage: {{credentials.storedKey}}
-			<p>NSID: {{credentials.nsid}}</p>
-			<p>SNUM: {{credentials.snum}}</p>
-			<p>authkey: {{credentials.authkey}}</p>
-			<p><a class="btn btn-default" href="#" role="button">Link&raquo;</a></p>
-		</div>
-	</div>
+<div class="container" ng-controller='HandoutsCtrl'>
+    <h2>Handouts</h2>
+    <br/><br/>
+    <div class='list-group'>
+        <a class='list-group-item' ng-click="download(stuff)" ng-repeat="stuff in result">
+            {{stuff}}
+        </a>
+    </div>
+    <div ng-hide='valid'>
+        <h3>You are not logged in, or your session has expired. Please log
+            in.</h3>
+    </div>
 </div>
 
 

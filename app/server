@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 var express = require('express');
 var mongo = require('./lib/db.js');
+var auth = require('./lib/auth.js');
 var cookieParser = require('cookie-parser');
 mongo.connect()
 mongo.init();
@@ -16,11 +17,15 @@ var logAll = function(req, res, next) {
 };
 
 app.use(logAll);
+app.use(cookieParser());
+setInterval(auth.purgeAuth, 30000);
+
 
 var fs = require('fs');
 
-var auth = require('./routes/authenticate');
-var main = require('./routes/main');
+var authenticate = require('./routes/authenticate');
+var resources = require('./routes/resources');
+var download = require('./routes/download');
 
 app.use('/error', function(req, res, next) {
     res.writeHead(404, 'Not Found', {'Content-Type': 'text/html'});
@@ -29,7 +34,9 @@ app.use('/error', function(req, res, next) {
         res.end(data);
         });
 });
-app.use('/auth', auth);
+app.use('/auth', authenticate);
+app.use('/resources', resources);
+app.use('/download', download);
 app.use('/js', express.static('./webroot/js'));
 app.use('/css', express.static('./webroot/css'));
 app.use('/partials', express.static('./webroot/partials'));
