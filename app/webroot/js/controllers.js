@@ -81,7 +81,12 @@ angular.module('myApp.controllers', ['ngCookies'])
                   $scope.access='granted';
                   $scope.result = ['Done'];
                   console.log('download started...');
-                  console.log(data, status, headers);
+		  var blob = new Blob([data], {type: "application/pdf"});
+		  var urlCreator = window.URL || window.webkitURL || window.mozURL || window.msURL;
+		  console.log(urlCreator);
+		  var url = urlCreator.createObjectURL(blob);
+		  window.location = url;
+          //        console.log(data, status, headers);
               })
 }
 

@@ -27,11 +27,11 @@ var sendFile = function() {
 	var file = JSON.parse(currentData)['file'];
     console.log('sendfile got: ' + file);
     // actually need to send a file :-)
+    currentRes.download('/storage/nodejs/LingQuiz/app/resources/' + file, function(err) {
     //currentRes.download('/home/peter/nodejs/LingQuiz/app/resources/' + file, function(err) {
-    currentRes.download('/home/peter/nodejs/LingQuiz/app/resources/test.pdf', function(err) {
 
        if (err) {
-           cosole.log('Error: ' + err);
+           console.log('Error: ' + err);
        } else {
            console.log('download started');
        }
@@ -41,6 +41,8 @@ var sendFile = function() {
 
 router.post('/', function(req, res) {
     console.log('download POST accessed');
+    var id = req.params.id;
+    console.log('id = %s', id);
     var key = req.cookies.LingKey;
     console.log('key: ' + key);
     auth.printAuth();

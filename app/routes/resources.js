@@ -11,11 +11,12 @@ router.get('/', function(req, res) {
     console.log('key: ' + key);
     auth.printAuth();
     if (!auth.hasPermission(key)) {
+	console.log('not authorized');
         res.json({'result': -1});
         return;
     }
     currentRes = res;
-    fs.readdir('/home/peter/nodejs/LingQuiz/app/resources', sendDir);
+    fs.readdir('/storage/nodejs/LingQuiz/app/resources', sendDir);
 });
 
 

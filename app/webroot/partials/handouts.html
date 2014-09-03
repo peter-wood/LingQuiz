@@ -2,7 +2,8 @@
     <h2>Handouts</h2>
     <br/><br/>
     <div class='list-group'>
-        <a class='list-group-item' ng-click="download(stuff)" ng-repeat="stuff in result">
+	<a class='list-group-item' ng-click="download(stuff)" ng-repeat="stuff in result"> 
+		<!-- <a ng-href="../download?id={{stuff}}" target="_self" ng-repeat="stuff in result"> -->
             {{stuff}}
         </a>
     </div>
