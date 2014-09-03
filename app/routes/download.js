@@ -27,8 +27,8 @@ var sendFile = function() {
 	var file = JSON.parse(currentData)['file'];
     console.log('sendfile got: ' + file);
     // actually need to send a file :-)
-    currentRes.download('/storage/nodejs/LingQuiz/app/resources/' + file, function(err) {
-    //currentRes.download('/home/peter/nodejs/LingQuiz/app/resources/' + file, function(err) {
+    // currentRes.download('/storage/nodejs/LingQuiz/app/resources/' + file, function(err) {
+    currentRes.download('/home/peter/nodejs/LingQuiz/app/resources/' + file, function(err) {
 
        if (err) {
            console.log('Error: ' + err);

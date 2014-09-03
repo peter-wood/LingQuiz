@@ -49,9 +49,9 @@ angular.module('myApp', [
      .when("/sorry", {
       url: "/sorry",
       templateUrl: "partials/sorry.html"
-    // })
-    //  .otherwise( {
-     //  redirectTo: "/main"
+    })
+     .otherwise( {
+     redirectTo: "/main"
     });
 }])
 

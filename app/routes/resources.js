@@ -16,7 +16,7 @@ router.get('/', function(req, res) {
         return;
     }
     currentRes = res;
-    fs.readdir('/storage/nodejs/LingQuiz/app/resources', sendDir);
+    fs.readdir('/home/peter/nodejs/LingQuiz/app/resources', sendDir);
 });
 
 

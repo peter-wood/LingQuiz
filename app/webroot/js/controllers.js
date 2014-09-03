@@ -10,7 +10,7 @@ angular.module('myApp.controllers', ['ngCookies'])
        storedKey: ''
     };
     $scope.login = function(creds) {
-      $http({url: 'http://localhost:8000/auth', method: 'POST', data: JSON.stringify({'nsid': creds.nsid, 'pass': SparkMD5.hash(creds.snum)})})
+      $http({url: 'auth', method: 'POST', data: JSON.stringify({'nsid': creds.nsid, 'pass': SparkMD5.hash(creds.snum)})})
      .success(function(data, status, headers, config) {
        console.log(data);
        var key = data.replace(/.*key:/,'');
@@ -31,13 +31,6 @@ angular.module('myApp.controllers', ['ngCookies'])
      });
     }
   }])
-  .controller('NavCtrl', ['$scope', '$route', function($scope, $route) {
-	  $scope.val = Date.parse(Date());
-	  $scope.update = function(target) {
-		  console.log('forcing update to ' + target);
-		  $route.reload();
-	  };
-  }])
   .controller('MainCtrl', ['$scope', function($scope) { 
     $scope.hash_test = SparkMD5.hash('Peter');
     // $scope.hash_test = 'Peter';
@@ -48,50 +41,48 @@ angular.module('myApp.controllers', ['ngCookies'])
   .controller('BookCtrl', ['$scope', function($scope) {
 
   }])
-  .controller('HandoutsCtrl', ['$scope', '$http',  function($scope, $http) {
+  .controller('HandoutsCtrl', ['$scope', '$http', '$sce', function($scope, $http, $sce) {
       $scope.result=[];
+      $scope.content = null;
       $scope.valid=false;
-
-    $scope.callGet = function() {
-          console.log('callGet called');
-          $http({url: 'http://localhost:8000/resources', method: 'GET'})
-              .error(function(data, status, headers, config) {
-                   console.log('Error: ' + data + "Status: " + status );
-                   $scope.valid=false;
-              })
-              .success(function(data, status, headers, config) {
-                  if (data.result === -1) {
-                      $scope.valid=false;
-                      return;
-                  } else {
-                      $scope.valid=true;
-                      $scope.result = data.result;
-                  }
-              })
-      }
-
+      console.log('HandoutCtrl called');
+      $http({url: 'resources', method: 'GET'})
+          .error(function(data, status, headers, config) {
+               console.log('Error: ' + data + "Status: " + status );
+               $scope.valid=false;
+          })
+          .success(function(data, status, headers, config) {
+              if (data.result === -1) {
+                  $scope.valid=false;
+                  return;
+              } else {
+                  $scope.valid=true;
+                  $scope.result = data.result;
+              }
+          })
       $scope.download = function(fileName) {
           console.log('download called');
           console.log(fileName);
-          $http({url: 'http://localhost:8000/download', method: 'POST', data: {'file': fileName}})
+          $http({url: 'download', method: 'POST', data: {'file': fileName}, responseType: 'arraybuffer'})
               .error(function(data, status, headers, config) {
                    console.log('Error: ' + data + "Status: " + status );
               })
               .success(function(data, status, headers, config) {
                   $scope.access='granted';
-                  $scope.result = ['Done'];
+                  $scope.result = null;
+                  $scope.valid = true;
                   console.log('download started...');
-		  var blob = new Blob([data], {type: "application/pdf"});
-		  var urlCreator = window.URL || window.webkitURL || window.mozURL || window.msURL;
-		  console.log(urlCreator);
-		  var url = urlCreator.createObjectURL(blob);
-		  window.location = url;
-          //        console.log(data, status, headers);
+                  var blob = new Blob([data], {type: "application/pdf"});
+                  var urlCreator = window.URL || window.webkitURL || window.mozURL || window.msURL;
+                  navigator.saveBlob = navigator.saveBlob || navigator.msSaveBlob; // only works for IE
+                  if (navigator.saveBlob) {
+                      navigator.saveBlob(blob, 'download.pdf');
+                  } else {
+                      var url = urlCreator.createObjectURL(blob);
+                      $scope.content = $sce.trustAsResourceUrl(url);
+                  }
               })
-}
-
-  $scope.callGet();
-
+      }
   }])
   .controller('QuizzesCtrl', ['$scope', function($scope) {
 
