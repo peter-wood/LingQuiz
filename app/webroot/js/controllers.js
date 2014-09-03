@@ -35,7 +35,40 @@ angular.module('myApp.controllers', ['ngCookies'])
     $scope.hash_test = SparkMD5.hash('Peter');
     // $scope.hash_test = 'Peter';
   }])
-  .controller('SlidesCtrl', ['$scope', function($scope) {
+  .controller('SlidesCtrl', ['$scope', '$http', '$sce', function($scope, $http, $sce) {
+    $scope.result=[];
+      $scope.content = null;
+      $scope.valid=false;
+      console.log('SlidesCtrl called');
+      $http({url: 'resources', method: 'GET'})
+          .error(function(data, status, headers, config) {
+               console.log('Error: ' + data + "Status: " + status );
+               $scope.valid=false;
+          })
+          .success(function(data, status, headers, config) {
+              if (data.result === -1) {
+                  $scope.valid=false;
+                  return;
+              } else {
+                  $scope.valid=true;
+                  $scope.result = data.result;
+              }
+          })
+      $scope.download = function(fileName) {
+          console.log('download called');
+          console.log(fileName);
+          $http({url: 'download', method: 'POST', data: {'file': fileName}})
+              .error(function(data, status, headers, config) {
+                   console.log('Error: ' + data + "Status: " + status );
+              })
+              .success(function(data, status, headers, config) {
+                  $scope.access='granted';
+                  $scope.result = null;
+                  $scope.valid = true;
+                  $scope.content = $sce.trustAsHtml(data);
+                  console.log($scope.content);
+              })
+      }
 
   }])
   .controller('BookCtrl', ['$scope', function($scope) {
