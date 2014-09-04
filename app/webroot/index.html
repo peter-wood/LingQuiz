@@ -20,7 +20,7 @@
   <script src="/bower_components/html5-boilerplate/js/vendor/modernizr-2.6.2.min.js"></script>
   <script src="/bower_components/angular/angular.min.js"></script>
   <script src="/bower_components/angular-cookies/angular-cookies.min.js"></script>
-  <script src="/bower_components/angular-route/angular-route.js"></script>
+  <script src="/bower_components/angular-ui-router/release/angular-ui-router.min.js"></script>
 <script src="/bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
 </head>
 
@@ -47,11 +47,11 @@
                 <li class="dropdown">
                     <a role="button" class="dropdown-toggle"> Menu <b class="caret"></b> </a>
                     <ul class="dropdown-menu">
-                        <li><a ng-href="/main">Home</a></li>
-                        <li><a ng-href="/slides">Slides</a></li>
-                        <li><a ng-href="/book">Textbook</a></li>
-                        <li><a ng-href="/handouts">Handouts</a></li>
-                        <li><a ng-href="/quizzes">Quizzes</a></li>
+                        <li><a ui-sref="main">Home</a></li>
+                        <li><a ui-sref="slides">Slides</a></li>
+                        <li><a ui-sref="book">Textbook</a></li>
+                        <li><a ui-sref="handouts">Handouts</a></li>
+                        <li><a ui-sref="quizzes">Quizzes</a></li>
 			<!-- <li><a ng-href="/wiki">Wiki</a></li> -->
                     </ul>
                 </li>
@@ -71,7 +71,7 @@
     </nav>
   <div class="container-fluid">
 
-      <div ng-view></div>
+      <div ui-view></div>
 
       <hr>
 

@@ -23,17 +23,17 @@ setInterval(auth.purgeAuth, 30000);
 var fs = require('fs');
 
 var authenticate = require('./routes/authenticate');
-// var dirTransfer = require('./routes/dirTransfer');
 var book = require('./routes/book');
 var handouts = require('./routes/handouts');
 var slides = require('./routes/slides');
+//var dirTransfer = require('./routes/dirTransfer');
 
 var download = require('./routes/download');
 
 
-app.use('/book', book);
-app.use('/handouts', dirTransfer);
-app.use('/slides', dirTransfer);
+app.use('/book_res', book);
+app.use('/handouts_res', handouts);
+app.use('/slides_res', slides);
 app.use('/auth', authenticate);
 app.use('/download', download);
 app.use('/js', express.static('./webroot/js'));

@@ -6,7 +6,7 @@ var router = express.Router();
 
 
 router.get('/', function(req, res) {
-    console.log('book GET accessed');
+    console.log('handouts GET accessed');
     var key = req.cookies.LingKey;
     console.log('key: ' + key);
     auth.printAuth();
@@ -16,7 +16,7 @@ router.get('/', function(req, res) {
         return;
     }
     currentRes = res;
-    fs.readdir(config['book'], sendDir);
+    fs.readdir(config['handouts'], sendDir);
 });
 
 

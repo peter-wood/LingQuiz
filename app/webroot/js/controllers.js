@@ -4,11 +4,7 @@
 
 angular.module('myApp.controllers', ['ngCookies'])
   .controller('AuthCtrl', ['$scope', '$http', '$rootScope', '$location', '$cookies', function($scope, $http, $rootScope, $location, $cookies) {
-    $scope.creds = {
-       nsid: '',
-       snum: '',
-       storedKey: ''
-    };
+    $scope.creds = {};
     $scope.login = function(creds) {
       $http({url: 'auth', method: 'POST', data: JSON.stringify({'nsid': creds.nsid, 'pass': SparkMD5.hash(creds.snum)})})
      .success(function(data, status, headers, config) {
@@ -17,9 +13,8 @@ angular.module('myApp.controllers', ['ngCookies'])
        key = key.replace(/<\/body.*/, '');
        console.log(key);
        $cookies.LingKey = key;
-       creds.storedKey = key;
-       $rootScope.credentials = creds;
        if (key != 'invalid') {
+           $scope.creds = {};
            $location.path('/loggedIn');
        } 
        else {
@@ -40,7 +35,7 @@ angular.module('myApp.controllers', ['ngCookies'])
       $scope.content = null;
       $scope.valid=false;
       console.log('SlidesCtrl called');
-      $http({url: 'slides', method: 'GET'})
+      $http({url: 'slides_res', method: 'GET'})
           .error(function(data, status, headers, config) {
                console.log('Error: ' + data + "Status: " + status );
                $scope.valid=false;
@@ -77,7 +72,7 @@ angular.module('myApp.controllers', ['ngCookies'])
       $scope.content = null;
       $scope.valid=false;
       console.log('BookCtrl called');
-      $http({url: 'book', method: 'GET'})
+      $http({url: 'book_res', method: 'GET'})
           .error(function(data, status, headers, config) {
                console.log('Error: ' + data + "Status: " + status );
                $scope.valid=false;
@@ -120,7 +115,7 @@ angular.module('myApp.controllers', ['ngCookies'])
       $scope.content = null;
       $scope.valid=false;
       console.log('HandoutCtrl called');
-      $http({url: 'handouts', method: 'GET'})
+      $http({url: 'handouts_res', method: 'GET'})
           .error(function(data, status, headers, config) {
                console.log('Error: ' + data + "Status: " + status );
                $scope.valid=false;

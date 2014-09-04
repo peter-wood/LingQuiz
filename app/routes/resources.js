@@ -1,12 +1,12 @@
 var express = require('express');
 var fs = require('fs');
 var auth = require('../lib/auth.js');
-var config = require('../lib/config.js');
 var router = express.Router();
 
+var currentRes;
 
 router.get('/', function(req, res) {
-    console.log('book GET accessed');
+    console.log('resources GET accessed');
     var key = req.cookies.LingKey;
     console.log('key: ' + key);
     auth.printAuth();
@@ -16,7 +16,7 @@ router.get('/', function(req, res) {
         return;
     }
     currentRes = res;
-    fs.readdir(config['slides'], sendDir);
+    fs.readdir('/home/peter/nodejs/LingQuiz/app/resources', sendDir);
 });
 
 

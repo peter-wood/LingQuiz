@@ -3,7 +3,7 @@
 
 // Declare app level module which depends on filters, and services
 angular.module('myApp', [
-  'ngRoute',
+  'ui.router',
   'ui.bootstrap',
   'myApp.filters',
   'myApp.services',
@@ -16,48 +16,47 @@ angular.module('myApp', [
   $locationProvider.html5Mode(true);
 }])
 
-.config(['$routeProvider', function($routeProvider) {
-  $routeProvider
-    .when("/", {
+.config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider) {
+  $urlRouterProvider.otherwise('/main');
+
+  $stateProvider
+    .state("main", {
+      url: '/main',
       templateUrl: "partials/main.html",
       controller: "MainCtrl"
     })
-    .when("/main", {
-      templateUrl: "partials/main.html",
-      controller: "MainCtrl"
-    })
-    .when("/slides", {
+    .state("slides", {
+      url: "/slides",
       templateUrl: "partials/slides.html",
       controller: "SlidesCtrl"
     })
-    .when("/book", {
+    .state("book", {
+      url: "/book",
       templateUrl: "partials/book.html",
       controller: "BookCtrl"
     })
-    .when("/handouts", {
+    .state("handouts", {
+      url: "/handouts",
       templateUrl: "partials/handouts.html",
       controller: "HandoutsCtrl"
     })
-    .when("/quizzes", {
+    .state("quizzes", {
+      url: "/quizzes",
       templateUrl: "partials/quizzes.html",
       controller: "QuizzesCtrl"
     })
-    .when("/wiki", {
+    .state("wiki", {
       url: "/wiki",
       templateUrl: "partials/wiki.html"
     })
-    .when("/loggedIn", {
+    .state("loggedIn", {
       url: "/loggedIn",
       templateUrl: "partials/loggedIn.html"
     })
-     .when("/sorry", {
+     .state("sorry", {
       url: "/sorry",
       templateUrl: "partials/sorry.html"
     })
-     .otherwise( {
-      url: "/error",
-      templateUrl: "partials/error.html"
-    });
 }])
 
 .config(['$httpProvider',  function($httpProvider) {
