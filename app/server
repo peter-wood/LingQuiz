@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 var express = require('express');
-var config = require('./lib/config.js');
-var mongo = require('./lib/db.js');
-var auth = require('./lib/auth.js');
+var config = require(__dirname + '/lib/config.js');
+var mongo = require(__dirname + '/lib/db.js');
+var auth = require(__dirname + '/lib/auth.js');
 var cookieParser = require('cookie-parser');
 mongo.connect();
 mongo.init();
@@ -22,13 +22,13 @@ setInterval(auth.purgeAuth, 30000);
 
 var fs = require('fs');
 
-var authenticate = require('./routes/authenticate');
-var book = require('./routes/book');
-var handouts = require('./routes/handouts');
-var slides = require('./routes/slides');
-//var dirTransfer = require('./routes/dirTransfer');
+var authenticate = require(__dirname + '/routes/authenticate');
+var book = require(__dirname + '/routes/book');
+var handouts = require(__dirname + '/routes/handouts');
+var slides = require(__dirname + '/routes/slides');
+//var dirTransfer = require(__dirname + '/routes/dirTransfer');
 
-var download = require('./routes/download');
+var download = require(__dirname + '/routes/download');
 
 
 app.use('/book_res', book);
@@ -36,12 +36,12 @@ app.use('/handouts_res', handouts);
 app.use('/slides_res', slides);
 app.use('/auth', authenticate);
 app.use('/download', download);
-app.use('/js', express.static('./webroot/js'));
-app.use('/css', express.static('./webroot/css'));
-app.use('/partials', express.static('./webroot/partials'));
-app.use('/bower_components', express.static('./webroot/bower_components'));
+app.use('/js', express.static(__dirname + '/webroot/js'));
+app.use('/css', express.static(__dirname + '/webroot/css'));
+app.use('/partials', express.static(__dirname + '/webroot/partials'));
+app.use('/bower_components', express.static(__dirname + '/webroot/bower_components'));
 app.all('*', function(req, res, next) {
-    res.sendfile('./webroot/index.html');
+    res.sendfile(__dirname + '/webroot/index.html');
     });
 
 // app.listen(8000);
