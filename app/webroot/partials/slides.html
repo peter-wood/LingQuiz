@@ -1,23 +1,14 @@
 <div class="container" ng-controller='SlidesCtrl'>
     <h2>Slides</h2>
     <br/><br/>
-    <div ng-show="result" class='list-group'>
-	<a class='list-group-item' ng-click="download(stuff)" ng-repeat="stuff in result"> 
-            {{stuff}}
-        </a>
-    </div>
-    <div ng-hide="result" class='list-group'>
-	    <p>Coming soon</p>
-    </div>
-<div ng-show='content' class='container pagination-centered' style="width:90%;">
-        <div class="embed-responsive embed-responsive-16by9">
-            <iframe class="embed-responsive-item" srcdoc="{{content}}"></iframe>
-        </div>
-    </div>
+    <ul ng-show='valid'>
+	    <li><a href="http://linguistics.usask.ca/Ling111_old/01-Intro.html">01 Intro</a></li>
+    </ul>
     <div ng-hide='valid'>
         <h3>You are not logged in, or your session has expired. Please log
             in.</h3>
     </div>
+
 </div>
 
 
