@@ -1,6 +1,8 @@
+#!/usr/bin/env node
+
 var mongoose = require('mongoose');
 var crypto = require('crypto');
-var config = require('./config.js');
+var config = require('./lib/config.js');
 var db;
 
 var connect = function() {
@@ -18,7 +20,8 @@ var mySchema = mongoose.Schema( {
     reserved: Object});
 
 mySchema.methods.success = function() {
-        console.log( 'saved record for ' + this.nsid);
+        ;
+	// console.log( 'saved record for ' + this.nsid);
 };
 
 var user = mongoose.model('User', mySchema);
@@ -31,8 +34,8 @@ var testingData = [
 
 // In testing only: Populate database with dummy entries.
 var init = function () {
-    if(config.deployment != 'testing')
-	    return;
+    // if(config.deployment != 'testing')
+//	    return;
     deleteAll();
     for (index = 0; index < testingData.length; ++index) {
         console.log('creating: ' + JSON.stringify(testingData[index]));
@@ -49,7 +52,7 @@ var init = function () {
 var deleteAll = function() {
     user.remove({}, function(err) {
         if (err) {
-            console.error.log(err);
+            console.log(err);
         }
         console.log('user store cleared');
     });
@@ -57,7 +60,7 @@ var deleteAll = function() {
 
 var printAll = function() {
     user.find()
-        .select('nsid snum name')
+        .select('name nsid snum')
         .exec(function(err, users) {
             if (err) return console.error(err);
             if (users.length === 0) {
@@ -65,7 +68,7 @@ var printAll = function() {
                 return false;
             }
             for(i = 0; i < users.length; ++i) {
-                console.log('%d, %s, %s, %s', i+1, users[i].name, users[i].nsid, users[i].snum);
+                console.log('%d: %s, %s, %s', i+1, users[i].name, users[i].nsid, users[i].snum);
             }
     });
 };
@@ -75,6 +78,7 @@ var addUser = function(nsid, name, snum, quizzes, reserved) {
     var u = new user({name: name, nsid: nsid, snum: snum, quizzes: quizzes, reserved:reserved});
     u.save(function(err, u) {
         if (err) return console.error(err);
+	// console.log('user added');
         u.success();
     });
 };
@@ -85,7 +89,7 @@ var currentPass = null;
 
 // helper function for haveUser()
 var checkPass = function(err, u) {
-    console.log('in checkPass. Error: %s, u: %s', err, u);
+    console.log('in checkPass');
     var result = false;
     if (err === null && u != null ) {
         console.log('found snum: %s for nsid: %s',  u.snum, u.nsid);
@@ -105,22 +109,33 @@ var haveUser = function(nsid, pass, cb) {
     currentCallback = cb;
     currentPass = pass;
     console.log('haveUser called with nsid: %s, and pass: %s', nsid, pass);
-    var query = user.findOne({'nsid': nsid});
+    var query = user.findOne({nsid: nsid});
     query.select('nsid snum');
     query.exec(checkPass);
 }
 
             
 
+console.log('importing...');
 
-var mongo = connect;
-mongo.connect = connect;
-mongo.init = init;
-mongo.printAll = printAll;
-mongo.deleteAll = deleteAll;
-mongo.haveUser = haveUser;
-
-module.exports = mongo;
-
-
+var fs = require('fs');
+connect();
+deleteAll();
+printAll();
+var lines = fs.readFileSync(process.argv[2]).toString().split('\n');
+// console.log(lines);
+for (var i = 0; i< lines.length; ++i) {
+	var line = lines[i];
+	// console.log('working on line: %s', line);
+	if (line.length > 0) {
+		e = line.split('\t');
+		addUser(e[0], e[1], e[2], e[3], e[4]);
+	}
+}
+setTimeout(function() {
+	printAll();
+}, 5000);
+setTimeout(function() {
+	mongoose.disconnect();
+}, 7000);
 

@@ -18,6 +18,10 @@ angular.module('myApp', [
 
 .config(['$routeProvider', function($routeProvider) {
   $routeProvider
+    .when("/", {
+      templateUrl: "partials/main.html",
+      controller: "MainCtrl"
+    })
     .when("/main", {
       templateUrl: "partials/main.html",
       controller: "MainCtrl"
@@ -51,7 +55,8 @@ angular.module('myApp', [
       templateUrl: "partials/sorry.html"
     })
      .otherwise( {
-     redirectTo: "/main"
+      url: "/error",
+      templateUrl: "partials/error.html"
     });
 }])
 

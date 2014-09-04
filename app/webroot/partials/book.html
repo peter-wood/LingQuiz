@@ -1,14 +1,24 @@
-<div class="container">
-	<div class="row">
-		<div class="col-md-4">
-			<h2>Textbook</h2>
-			<p>localStorage: {{credentials.storedKey}}
-			<p>NSID: {{credentials.nsid}}</p>
-			<p>SNUM: {{credentials.snum}}</p>
-			<p>authkey: {{credentials.authkey}}</p>
-			<p><a class="btn btn-default" href="#" role="button">Link&raquo;</a></p>
-		</div>
-	</div>
+<div class="container" ng-controller='BookCtrl'>
+    <h2>Book</h2>
+    <br/><br/>
+	<p>The manuscript of Dr. Makarova's forthcoming introductory linguistics textbook will be used as lecture notes this term.</p>
+	<p>The manuscript is copyright material and provided only to students enroled in the Linguistics 111 course.</p>
+	<p>Please respect the copyright.</p>
+	<p>Comments are welcome. Please let your instructor know your comments, suggestions, or corrections.</p>
+    <div ng-show="result" class='list-group'>
+	<a class='list-group-item' ng-click="download(stuff)" ng-repeat="stuff in result"> 
+            {{stuff}}
+        </a>
+    </div>
+    <div ng-show='content' class='container pagination-centered' style="width:90%;">
+        <div class="embed-responsive embed-responsive-16by9">
+            <iframe class="embed-responsive-item" src="{{content}}"></iframe>
+        </div>
+    </div>
+    <div ng-hide='valid'>
+        <h3>You are not logged in, or your session has expired. Please log
+            in.</h3>
+    </div>
 </div>
 
 

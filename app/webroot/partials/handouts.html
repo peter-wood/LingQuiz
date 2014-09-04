@@ -1,13 +1,13 @@
 <div class="container" ng-controller='HandoutsCtrl'>
     <h2>Handouts</h2>
     <br/><br/>
-    <div class='list-group'>
+    <div ng-show="result" class='list-group'>
 	<a class='list-group-item' ng-click="download(stuff)" ng-repeat="stuff in result"> 
             {{stuff}}
         </a>
     </div>
-    <div ng-show='content'>
-        <div class="embed-responsive embed-responsive-4by3">
+    <div ng-show='content' class='container pagination-centered' style="width:90%;">
+        <div class="embed-responsive embed-responsive-16by9">
             <iframe class="embed-responsive-item" src="{{content}}"></iframe>
         </div>
     </div>

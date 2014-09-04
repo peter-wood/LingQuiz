@@ -1,6 +1,7 @@
 var express = require('express');
 var fs = require('fs');
 var auth = require('../lib/auth.js');
+var config = require('../lib/config.js');
 var router = express.Router();
 
 var currentRes;
@@ -25,10 +26,10 @@ var receiveData = function(d) {
 var sendFile = function() {
     if (!dataValid) return;
 	var file = JSON.parse(currentData)['file'];
-    console.log('sendfile got: ' + file);
-    // actually need to send a file :-)
-    // currentRes.download('/storage/nodejs/LingQuiz/app/resources/' + file, function(err) {
-    currentRes.download('/home/peter/nodejs/LingQuiz/app/resources/' + file, function(err) {
+	var resource = JSON.parse(currentData)['resource'];
+    console.log('sendfile got: filename: %s, resource: %s' + file, resource);
+    var resDir = config[resource];
+    currentRes.download(resDir + file, function(err) {
 
        if (err) {
            console.log('Error: ' + err);
@@ -41,8 +42,6 @@ var sendFile = function() {
 
 router.post('/', function(req, res) {
     console.log('download POST accessed');
-    var id = req.params.id;
-    console.log('id = %s', id);
     var key = req.cookies.LingKey;
     console.log('key: ' + key);
     auth.printAuth();

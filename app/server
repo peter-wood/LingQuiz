@@ -1,18 +1,17 @@
 #!/usr/bin/env node
 var express = require('express');
+var config = require('./lib/config.js');
 var mongo = require('./lib/db.js');
 var auth = require('./lib/auth.js');
 var cookieParser = require('cookie-parser');
-mongo.connect()
+mongo.connect();
 mongo.init();
 mongo.printAll();
-// mongo.deleteAll();
-// mongo.printAll();
 
 var app = express();
 
 var logAll = function(req, res, next) {
-	if (req.headers.authorization) console.log(req.headers.authorization);
+	// app.set('currentPath', req.path);
 	next()
 };
 
@@ -24,18 +23,18 @@ setInterval(auth.purgeAuth, 30000);
 var fs = require('fs');
 
 var authenticate = require('./routes/authenticate');
-var resources = require('./routes/resources');
+// var dirTransfer = require('./routes/dirTransfer');
+var book = require('./routes/book');
+var handouts = require('./routes/handouts');
+var slides = require('./routes/slides');
+
 var download = require('./routes/download');
 
-app.use('/error', function(req, res, next) {
-    res.writeHead(404, 'Not Found', {'Content-Type': 'text/html'});
-    fs.readFile('./webroot/error.html', {encoding: 'utf8'}, function(err, data) {
-        if (err) throw err;
-        res.end(data);
-        });
-});
+
+app.use('/book', book);
+app.use('/handouts', dirTransfer);
+app.use('/slides', dirTransfer);
 app.use('/auth', authenticate);
-app.use('/resources', resources);
 app.use('/download', download);
 app.use('/js', express.static('./webroot/js'));
 app.use('/css', express.static('./webroot/css'));
@@ -45,4 +44,11 @@ app.all('*', function(req, res, next) {
     res.sendfile('./webroot/index.html');
     });
 
-app.listen(8000);
+// app.listen(8000);
+
+var server = app.listen(config.port, function () {
+	console.log('Listening on port %d', server.address().port);
+	console.log('Setup: %s', config.setup);
+	console.log('Deployment: %s', config.deployment);
+});
+
