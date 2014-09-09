@@ -7,12 +7,12 @@ var router = express.Router();
 
 router.get('/', function(req, res) {
     console.log('book GET accessed');
-    var key = req.cookies.LingKey;
+    var key = req.cookies['myLingKey'];
     console.log('key: ' + key);
     auth.printAuth();
     if (!auth.hasPermission(key)) {
 	console.log('not authorized');
-        res.json({'result': -1});
+        res.jsonp({'result': -1});
         return;
     }
     currentRes = res;
@@ -22,11 +22,12 @@ router.get('/', function(req, res) {
 
 var sendDir = function(err, dir) {
     if (err) {
-        currentRes.end('error: ', err);
+        currentRes.jsonp({'error': err});
         return;
+    } else {
+        var json = {'result': dir};
+        currentRes.jsonp(json);
     }
-    var json = {'result': dir};
-    currentRes.json(json);
 }
 
 

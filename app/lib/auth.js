@@ -67,6 +67,7 @@ var printAuth = function() {
 // returns true if request has a valid authkey
 var isAuthenticated = function(key) {
 	if (authenticated[key]){ 
+		extendAuth(key);
 		return true; 
 	} else {
 		return false;

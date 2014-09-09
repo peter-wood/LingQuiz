@@ -10,9 +10,11 @@
             {{stuff}}
         </a>
     </div>
-    <div ng-show='content' class='container pagination-centered' style="width:90%;">
+    <p>test</p>
+    <a href='{{fileName}}'>Download</a>
+    <div  class='container pagination-centered' style="width:90%;">
         <div class="embed-responsive embed-responsive-16by9">
-            <iframe class="embed-responsive-item" src="{{content}}"></iframe>
+            <iframe class="embed-responsive-item" ng-src="{{fileName}}"></iframe>
         </div>
     </div>
     <div ng-hide='valid'>

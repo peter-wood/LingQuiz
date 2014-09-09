@@ -17,45 +17,45 @@ angular.module('myApp', [
 }])
 
 .config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider) {
-  $urlRouterProvider.otherwise('/main');
+  $urlRouterProvider.otherwise('/Ling111_test');
 
   $stateProvider
     .state("main", {
-      url: '/main',
-      templateUrl: "partials/main.html",
+      url: '/Ling111_test',
+      templateUrl: "/Ling111_test//partials/main.html",
       controller: "MainCtrl"
     })
     .state("slides", {
-      url: "/slides",
-      templateUrl: "partials/slides.html",
+      url: "/Ling111_test/slides",
+      templateUrl: "/Ling111_test/partials/slides.html",
       controller: "SlidesCtrl"
     })
     .state("book", {
-      url: "/book",
-      templateUrl: "partials/book.html",
+      url: "/Ling111_test/book",
+      templateUrl: "/Ling111_test/partials/book.html",
       controller: "BookCtrl"
     })
     .state("handouts", {
-      url: "/handouts",
-      templateUrl: "partials/handouts.html",
+      url: "/Ling111_test/handouts",
+      templateUrl: "/Ling111_test/partials/handouts.html",
       controller: "HandoutsCtrl"
     })
     .state("quizzes", {
-      url: "/quizzes",
-      templateUrl: "partials/quizzes.html",
+      url: "/Ling111_test/quizzes",
+      templateUrl: "/Ling111_test/partials/quizzes.html",
       controller: "QuizzesCtrl"
     })
     .state("wiki", {
-      url: "/wiki",
-      templateUrl: "partials/wiki.html"
+      url: "/Ling111_test/wiki",
+      templateUrl: "/Ling111_test/partials/wiki.html"
     })
     .state("loggedIn", {
-      url: "/loggedIn",
-      templateUrl: "partials/loggedIn.html"
+      url: "/Ling111_test/loggedIn",
+      templateUrl: "/Ling111_test/partials/loggedIn.html"
     })
      .state("sorry", {
-      url: "/sorry",
-      templateUrl: "partials/sorry.html"
+      url: "/Ling111_test/sorry",
+      templateUrl: "/Ling111_test/partials/sorry.html"
     })
 }])
 
@@ -63,10 +63,16 @@ angular.module('myApp', [
     $httpProvider.interceptors.push('myInterceptor');
 }])
 
-.run(['$rootScope', function($rootScope) {
-    $rootScope.credentials = {};
+.config(['$sceProvider',  function($sceProvider) {
+    $sceProvider.enabled(false);
+    ;
+}])
+
+
+.run([function() {
+    sessionStorage.LingKey = 'invalid';
     // sessionStorage.setItem("authkey", "I am initialzed in module.run");
-    $rootScope.credentials.storedKey = sessionStorage.getItem("authkey");
+    // $rootScope.credentials.storedKey = sessionStorage.getItem("authkey");
 }])
 
 .run(function($http) {

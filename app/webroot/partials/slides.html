@@ -1,9 +1,20 @@
 <div class="container" ng-controller='SlidesCtrl'>
-    <h2>Slides</h2>
+    <h2 ng-click="reset()">Slides</h2>
     <br/><br/>
-    <ul ng-show='valid'>
-	    <li><a href="http://linguistics.usask.ca/Ling111_old/01-Intro.html">01 Intro</a></li>
-    </ul>
+    <div ng-show='list' class='list-group'>
+	    <a class='list-group-item' ng-click='download(el)' ng-repeat='el in result'>
+		    {{el}}
+	    </a>
+    </div>
+    <div ng-show='content' class='container pagination-centered' style="width:90%;">
+	    <div class='text-center'><a target="_blank" ng-href="http://linguistics.usask.ca:8080/resources/slides/{{fileName}}.html">View in New Window</a> </div>
+	</br/>
+        <div class="embed-responsive embed-responsive-16by9">
+		<!-- <iframe class="embed-responsive-item" src="{{content}}"></iframe> -->
+		<iframe class="embed-responsive-item" src="{{content}}"></iframe> 
+        </div>
+    </div>
+
     <div ng-hide='valid'>
         <h3>You are not logged in, or your session has expired. Please log
             in.</h3>
