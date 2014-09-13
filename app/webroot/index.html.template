@@ -78,13 +78,13 @@
       <footer>
         <p>&copy; Peter Wood 2014</p>
       </footer>
-  <script src="/Ling111_test/js/app.js"></script>
-  <script src="/Ling111_test/js/services.js"></script>
-  <script src="/Ling111_test/js/controllers.js"></script>
-  <script src="/Ling111_test/js/filters.js"></script>
-  <script src="/Ling111_test/js/directives.js"></script>
-  <script src="/Ling111_test/js/factories.js"></script>
-  <script src="/Ling111_test/js/spark-md5.min.js"></script>
+  <script src="/@@webdir@@/js/app.js"></script>
+  <script src="/@@webdir@@/js/services.js"></script>
+  <script src="/@@webdir@@/js/controllers.js"></script>
+  <script src="/@@webdir@@/js/filters.js"></script>
+  <script src="/@@webdir@@/js/directives.js"></script>
+  <script src="/@@webdir@@/js/factories.js"></script>
+  <script src="/@@webdir@@/js/spark-md5.min.js"></script>
   </div>
 </body>
 </html>

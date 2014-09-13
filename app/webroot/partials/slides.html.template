@@ -7,7 +7,7 @@
 	    </a>
     </div>
     <div ng-show='content' class='container pagination-centered' style="width:90%;">
-	    <div class='text-center'><a target="_blank" ng-href="http://linguistics.usask.ca:8080/resources/slides/{{fileName}}.html">View in New Window</a> </div>
+	    <div class='text-center'><a target="_blank" ng-href="@@nodeserver@@:@@nodeport@@/resources/slides/{{fileName}}.html">View in New Window</a> </div>
 	</br/>
         <div class="embed-responsive embed-responsive-16by9">
 		<!-- <iframe class="embed-responsive-item" src="{{content}}"></iframe> -->
