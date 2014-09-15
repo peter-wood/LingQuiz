@@ -37,7 +37,6 @@ var sendDir = function(err, dir) {
     if (err) {
 	console.log('error in sendDir');
         result = {'error: ' : err};
-        return;
     } else {
 	console.log('sendDir success');
 	// we only want the files ending in html showing up

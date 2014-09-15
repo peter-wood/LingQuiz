@@ -17,45 +17,45 @@ angular.module('myApp', [
 }])
 
 .config(['$stateProvider', '$urlRouterProvider', function($stateProvider, $urlRouterProvider) {
-  $urlRouterProvider.otherwise('/Ling111_test');
+  $urlRouterProvider.otherwise('/@@webdir@@');
 
   $stateProvider
     .state("main", {
-      url: '/Ling111_test',
-      templateUrl: "/Ling111_test//partials/main.html",
+      url: '/@@webdir@@',
+      templateUrl: "/@@webdir@@//partials/main.html",
       controller: "MainCtrl"
     })
     .state("slides", {
-      url: "/Ling111_test/slides",
-      templateUrl: "/Ling111_test/partials/slides.html",
+      url: "/@@webdir@@/slides",
+      templateUrl: "/@@webdir@@/partials/slides.html",
       controller: "SlidesCtrl"
     })
     .state("book", {
-      url: "/Ling111_test/book",
-      templateUrl: "/Ling111_test/partials/book.html",
+      url: "/@@webdir@@/book",
+      templateUrl: "/@@webdir@@/partials/book.html",
       controller: "BookCtrl"
     })
     .state("handouts", {
-      url: "/Ling111_test/handouts",
-      templateUrl: "/Ling111_test/partials/handouts.html",
+      url: "/@@webdir@@/handouts",
+      templateUrl: "/@@webdir@@/partials/handouts.html",
       controller: "HandoutsCtrl"
     })
     .state("quizzes", {
-      url: "/Ling111_test/quizzes",
-      templateUrl: "/Ling111_test/partials/quizzes.html",
+      url: "/@@webdir@@/quizzes",
+      templateUrl: "/@@webdir@@/partials/quizzes.html",
       controller: "QuizzesCtrl"
     })
     .state("wiki", {
-      url: "/Ling111_test/wiki",
-      templateUrl: "/Ling111_test/partials/wiki.html"
+      url: "/@@webdir@@/wiki",
+      templateUrl: "/@@webdir@@/partials/wiki.html"
     })
     .state("loggedIn", {
-      url: "/Ling111_test/loggedIn",
-      templateUrl: "/Ling111_test/partials/loggedIn.html"
+      url: "/@@webdir@@/loggedIn",
+      templateUrl: "/@@webdir@@/partials/loggedIn.html"
     })
      .state("sorry", {
-      url: "/Ling111_test/sorry",
-      templateUrl: "/Ling111_test/partials/sorry.html"
+      url: "/@@webdir@@/sorry",
+      templateUrl: "/@@webdir@@/partials/sorry.html"
     })
 }])
 

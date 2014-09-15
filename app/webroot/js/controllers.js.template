@@ -12,18 +12,18 @@ angular.module('myApp.controllers', ['ngCookies'])
       }
       var myPass = SparkMD5.hash(creds.snum);
       console.log('requesting auth. nsid: %s, snum: %s, hash: %s', creds.nsid, creds.snum, myPass);
-      $http.jsonp(encodeURI('http://linguistics.usask.ca:8080/auth?callback=JSON_CALLBACK&nsid=' + creds.nsid + '&pass=' + myPass))
+      $http.jsonp(encodeURI('@@nodeserver@@:@@nodeport@@/auth?callback=JSON_CALLBACK&nsid=' + creds.nsid + '&pass=' + myPass))
      .success(function(data, status, headers, config) {
        var key = data['key'];
        console.log(key);
        if (key != 'invalid') {
 	   sessionStorage.LingKey = key;
 	   $scope.creds = {nsid: null, snum: null};
-           $location.path('/Ling111_test/loggedIn');
+           $location.path('/@@webdir@@/loggedIn');
        } 
        else {
 	   sessionStorage.LingKey = 'invalid';
-           $location.path('/Ling111_test/sorry');
+           $location.path('/@@webdir@@/sorry');
        }
      });
     }
@@ -40,7 +40,7 @@ angular.module('myApp.controllers', ['ngCookies'])
       $scope.fileName = null;
       $scope.list = false;
       console.log('SlidesCtrl called');
-      $http.jsonp(encodeURI('http://linguistics.usask.ca:8080/slides_res?callback=JSON_CALLBACK'))
+      $http.jsonp(encodeURI('@@nodeserver@@:@@nodeport@@/slides_res?callback=JSON_CALLBACK'))
        .success(function(data, status, headers, config) {
               if (data.result === -1) {
                   $scope.valid=false;
@@ -58,7 +58,7 @@ angular.module('myApp.controllers', ['ngCookies'])
 	  $scope.fileName = file;
           console.log($scope.fileName);
 	  // $scope.content='http://google.com';
-	  $scope.content='http://linguistics.usask.ca:8080/resources/slides/' + $scope.fileName + '.html';
+	  $scope.content='@@nodeserver@@:@@nodeport@@/resources/slides/' + $scope.fileName + '.html';
       }
       $scope.reset = function() {
 	      $scope.list=true;
@@ -72,7 +72,7 @@ angular.module('myApp.controllers', ['ngCookies'])
       $scope.fileName = null;
       $scope.valid=false;
       console.log('BookCtrl called');
-      $http.jsonp(encodeURI('http://linguistics.usask.ca:8080/book_res?callback=JSON_CALLBACK'))
+      $http.jsonp(encodeURI('@@nodeserver@@:@@nodeport@@/book_res?callback=JSON_CALLBACK'))
           .error(function(data, status, headers, config) {
                console.log('Error: ' + data + "Status: " + status );
                $scope.valid=false;
@@ -89,8 +89,7 @@ angular.module('myApp.controllers', ['ngCookies'])
       $scope.download = function(file) {
           console.log('download called');
           console.log(file);
-          $scope.fileName = $sce.trustAsUrl('http://linguistics.usask.ca:8080/resources/book/'+file);
-          
+          $scope.fileName = $sce.trustAsUrl('@@nodeserver@@:@@nodeport@@/resources/book/'+file);
       }
 
   }])
@@ -99,7 +98,7 @@ angular.module('myApp.controllers', ['ngCookies'])
       $scope.content = null;
       $scope.valid=false;
       console.log('HandoutCtrl called');
-      $http({url: 'http://linguistics.usask.ca:8080/handouts_res', method: 'GET'})
+      $http({url: '@@nodeserver@@:@@nodeport@@/handouts_res', method: 'GET'})
           .error(function(data, status, headers, config) {
                console.log('Error: ' + data + "Status: " + status );
                $scope.valid=false;
@@ -116,7 +115,7 @@ angular.module('myApp.controllers', ['ngCookies'])
       $scope.download = function(fileName) {
           console.log('download called');
           console.log(fileName);
-          $http({url: 'http://linguistics.usask.ca:8080/download', method: 'POST', data: {'file': fileName, 'resource': 'handouts'}, responseType: 'arraybuffer'})
+          $http({url: '@@nodeserver@@:@@nodeport@@/download', method: 'POST', data: {'file': fileName, 'resource': 'handouts'}, responseType: 'arraybuffer'})
               .error(function(data, status, headers, config) {
                    console.log('Error: ' + data + "Status: " + status );
               })
