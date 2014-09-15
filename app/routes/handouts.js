@@ -9,7 +9,17 @@ router.get('/', function(req, res) {
     console.log('handouts GET accessed');
     var key = req.cookies.LingKey;
     console.log('key: ' + key);
-    auth.printAuth();
+    auth.printAuth();.error(function(data) {.error(function(data) {
+	  	console.log('hi from error callback');
+               console.log('Error: ' + data);
+               $scope.valid=false;
+          })
+
+	  	console.log('hi from error callback');
+               console.log('Error: ' + data);
+               $scope.valid=false;
+          })
+
     if (!auth.hasPermission(key)) {
 	console.log('not authorized');
         res.json({'result': -1});
