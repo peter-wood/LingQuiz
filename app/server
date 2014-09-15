@@ -11,7 +11,7 @@ mongo.printAll();
 var app = express();
 
 var logAll = function(req, res, next) {
-	console.log('Path requested: %s', req.path);
+	app.locals.myPath = req.path; // save current path so we can recall it in routes
 	var key = null;
 	if (req.cookies && req.cookies.myLingKey) {
 		key = req.cookies['myLingKey'];
@@ -36,20 +36,21 @@ var logAll = function(req, res, next) {
 app.use(cookieParser());
 app.use(logAll);
 
-setInterval(auth.purgeAuth, 30000);
+setInterval(auth.purgeAuth, config.purgeInterval * 1000);
 
 
 var fs = require('fs');
 
 var authenticate = require(__dirname + '/routes/authenticate');
-var book = require(__dirname + '/routes/book');
-var handouts = require(__dirname + '/routes/handouts');
-var slides = require(__dirname + '/routes/slides');
+var docs = require(__dirname + '/routes/docs');
+// var book = require(__dirname + '/routes/book');
+// var handouts = require(__dirname + '/routes/handouts');
+// var slides = require(__dirname + '/routes/slides');
 
-app.use('/book_res', book);
-app.use('/handouts_res', handouts);
-app.use('/slides_res', slides);
 app.use('/auth', authenticate);
+app.use('/book_res', docs);
+app.use('/handouts_res', docs);
+app.use('/slides_res', docs);
 app.use('/resources/book', express.static(__dirname + '/resources/book/'));
 app.use('/resources/handouts', express.static(__dirname + '/resources/handouts/'));
 app.use('/resources/slides', express.static(__dirname + '/resources/slides/'));

@@ -2,6 +2,7 @@
 
 var uuid = require('uuid');
 var db = require('./db.js');
+var config = require('./config.js');
 
 var authenticated = {}; // holds all authenticated users
 
@@ -37,7 +38,7 @@ var addKey = function(user, pass, cb) {
            var element = {
 		        'user': user,
 		        'pass': pass,
-               'expires': Date.parse(Date()) + (10 * 60 * 1000) // expires after 10 min. of inactivity
+               'expires': Date.parse(Date()) + (config.loginValidFor * 60 * 1000) // expires after 10 min. of inactivity
 	       }
 	       key = uuid.v4();
            authenticated[key] = element;

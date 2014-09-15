@@ -5,10 +5,19 @@ var config = require('../lib/config.js');
 var router = express.Router();
 var currentRes = null;
 var result = null;
+var myPath = null;
+var requestType = { '/book_res': ['book', /\.pdf$/],
+	            '/handouts_res': ['handouts', /\.pdf$/],
+		    '/slides_res': ['slides', /\.html$/]
+};
+var thisRequest = null;
 
 
 router.get('/', function(req, res) {
-    console.log('book GET accessed');
+    console.log('docs GET accessed');
+    myPath = req.app.locals.myPath;
+    console.log ('path: %s', myPath);
+    thisRequest = requestType[myPath];
     currentRes = res;
     var key = req.cookies['myLingKey'];
     console.log('key: ' + key);
@@ -19,7 +28,7 @@ router.get('/', function(req, res) {
         sendResult();
     } else {
       console.log('authorized :-)');
-      fs.readdir(config['book'], sendDir);
+      fs.readdir(config[thisRequest[0]], sendDir);
     }
 });
 
@@ -40,9 +49,9 @@ var sendDir = function(err, dir) {
         result = {'error: ' : err};
     } else {
       console.log('sendDir success');
-      // only files ending in pdf
+      // strip file suffix 
       var returnvalue = [];
-      var reg = /\.pdf$/;
+      var reg = thisRequest[1];
       for (var i = 0; i < dir.length; ++i) {
         if (reg.test(dir[i])) {
           returnvalue.push(dir[i].replace(reg,''));
