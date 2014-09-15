@@ -1,18 +1,18 @@
 <div class="container" ng-controller='BookCtrl'>
-    <h2>Book</h2>
+    <h2 ng-click='reset()'>Book</h2>
     <br/><br/>
 	<p>The manuscript of Dr. Makarova's forthcoming introductory linguistics textbook will be used as lecture notes this term.</p>
 	<p>The manuscript is copyright material and provided only to students enroled in the Linguistics 111 course.</p>
 	<p>Please respect the copyright.</p>
 	<p>Comments are welcome. Please let your instructor know your comments, suggestions, or corrections.</p>
-    <div ng-show="result" class='list-group'>
-	<a class='list-group-item' ng-click="download(stuff)" ng-repeat="stuff in result"> 
-            {{stuff}}
+    <div ng-show="list" class='list-group'>
+	<a class='list-group-item' ng-click="download(item)" ng-repeat="item in result"> 
+            {{item}}
         </a>
     </div>
-    <p>test</p>
-    <a href='{{fileName}}'>Download</a>
-    <div  class='container pagination-centered' style="width:90%;">
+    <div ng-show='fileName' class='container pagination-centered' style="width:90%;">
+        <div class='text-center'><a target="_blank" ng-href="{{fileName}}">Download</a> </div>
+	<br/> 
         <div class="embed-responsive embed-responsive-16by9">
             <iframe class="embed-responsive-item" ng-src="{{fileName}}"></iframe>
         </div>

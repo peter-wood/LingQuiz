@@ -9,7 +9,8 @@ function error {
 function getConf {
   if [ -e /tmp/LingConf.cfg ]
     then
-    echo "Config file exists. It shouldn't. Exiting"
+    echo "Config file exists. It shouldn't. Deleting it. Fix problems and rerun"
+    rm /tmp/LingConf.cfg
     exit 1
   fi
   echo "Processing config file $1"
@@ -44,7 +45,7 @@ echo "Webdir is set to $webdir. Creating..."
 mkdir "$webroot/$webdir" || error "Could not create directory."
 echo "Success"
 echo "copying files to webdir..."
-cp -ar ../webroot/* "$webroot/$webdir/" || error "Could not copy files."
+cp -avr "../webroot/." "$webroot/$webdir/" || error "Could not copy files."
 echo "Success"
 echo "Adjusting scripts to environment"
 setPaths || error "Could not set proper paths in script files"

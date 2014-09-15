@@ -52,8 +52,9 @@ app.use('/book_res', book);
 app.use('/handouts_res', handouts);
 app.use('/slides_res', slides);
 app.use('/auth', authenticate);
-app.use('/download', download);
+// app.use('/download', download);
 app.use('/resources/book', express.static(__dirname + '/resources/book/'));
+app.use('/resources/handouts', express.static(__dirname + '/resources/handouts/'));
 app.use('/resources/slides', express.static(__dirname + '/resources/slides/'));
 
 var server = app.listen(config.port, function () {

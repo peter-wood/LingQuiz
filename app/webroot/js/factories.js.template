@@ -1,0 +1,34 @@
+'use strict';
+
+angular.module('myApp.factories', [])
+     .factory('myFac', [ '$sce', '$http', function ($sce, $http) {
+	var fac = {};
+	fac.init = function(subdir, request, fileType, scope) {
+		scope.list = false;
+		scope.fileName = null;
+		scope.valid = false;
+		scope.result = null;
+		$http.jsonp(encodeURI('@@nodeserver@@:@@nodeport@@/' + request + '?callback=JSON_CALLBACK'))
+	         .success(function(data, status, headers, config) {
+                     if (data.result === -1) {
+                        scope.valid=false;
+                     return;
+                     } else {
+                        scope.valid=true;
+		        scope.list=true;
+                        scope.result = data.result;
+                     }
+                 });
+		scope.reset = function() {
+		      scope.list = true;
+		      scope.fileName = null;
+		};
+		scope.download = function(file) {
+		      console.log('@@nodeserver@@:@@nodeport@@/resources/' + subdir + file + fileType);
+		      scope.fileName = $sce.trustAsResourceUrl('@@nodeserver@@:@@nodeport@@/resources/' + subdir + file + fileType);
+		      scope.list = false;
+		};
+	}
+	return fac;
+    }]) ;
+

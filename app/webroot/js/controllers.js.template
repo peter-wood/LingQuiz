@@ -4,7 +4,8 @@
 
 angular.module('myApp.controllers', ['ngCookies'])
   .controller('AuthCtrl', ['$scope', '$http', '$location', '$cookies', function($scope, $http, $location, $cookies) {
-    $scope.creds = {nsid: null, snum: null};
+    $scope
+	  .creds = {nsid: null, snum: null};
     $scope.login = function(creds) {
       if (creds.snum === null || creds.nsid === null) {
           $location.path('/sorry');
@@ -29,111 +30,28 @@ angular.module('myApp.controllers', ['ngCookies'])
     }
   }])
   .controller('MainCtrl', ['$scope', function($scope) { 
-    $scope.hash_test = SparkMD5.hash('Peter');
-    // $scope.hash_test = 'Peter';
+	  ;
   }])
-  .controller('SlidesCtrl', ['$scope', '$http', '$sce', function($scope, $http, $sce) {
-    $scope.result=[];
-      console.log('LingKey= %s', sessionStorage.LingKey);
-      $scope.content = null;
-      $scope.valid=false;
-      $scope.fileName = null;
-      $scope.list = false;
+  .controller('SlidesCtrl', ['$scope', 'myFac', function($scope, myFac) {
       console.log('SlidesCtrl called');
-      $http.jsonp(encodeURI('@@nodeserver@@:@@nodeport@@/slides_res?callback=JSON_CALLBACK'))
-       .success(function(data, status, headers, config) {
-              if (data.result === -1) {
-                  $scope.valid=false;
-                  return;
-              } else {
-                  $scope.valid=true;
-		  $scope.list=true;
-		  $scope.LingKey= sessionStorage.LingKey;
-                  $scope.result = data.result;
-              }
-          });
-      $scope.download = function(file) {
-          console.log('download called');
-	  $scope.list=false;
-	  $scope.fileName = file;
-          console.log($scope.fileName);
-	  // $scope.content='http://google.com';
-	  $scope.content='@@nodeserver@@:@@nodeport@@/resources/slides/' + $scope.fileName + '.html';
-      }
-      $scope.reset = function() {
-	      $scope.list=true;
-	      $scope.content = null;
-      }
+      var subdir = 'slides/';
+      var request = 'slides_res';
+      var fileType = '.html';
+      myFac.init(subdir, request, fileType, $scope);
   }])
-  .controller('BookCtrl', ['$scope', '$http', '$sce', function($scope, $http, $sce) {
-      $scope.result = null;
-      $scope.content = null;
-      $scope.resource = null;
-      $scope.fileName = null;
-      $scope.valid=false;
+  .controller('BookCtrl', ['$scope', 'myFac', function($scope, myFac) {
       console.log('BookCtrl called');
-      $http.jsonp(encodeURI('@@nodeserver@@:@@nodeport@@/book_res?callback=JSON_CALLBACK'))
-          .error(function(data, status, headers, config) {
-               console.log('Error: ' + data + "Status: " + status );
-               $scope.valid=false;
-          })
-          .success(function(data, status, headers, config) {
-              if (data.result === -1) {
-                  $scope.valid=false;
-                  return;
-              } else {
-                  $scope.valid=true;
-                  $scope.result = data.result;
-              }
-          })
-      $scope.download = function(file) {
-          console.log('download called');
-          console.log(file);
-          $scope.fileName = $sce.trustAsUrl('@@nodeserver@@:@@nodeport@@/resources/book/'+file);
-      }
-
+      var subdir = 'book/';
+      var request = 'book_res';
+      var fileType = '.pdf';
+      myFac.init(subdir, request, fileType, $scope);
   }])
-  .controller('HandoutsCtrl', ['$scope', '$http', '$sce', function($scope, $http, $sce) {
-      $scope.result=null;
-      $scope.content = null;
-      $scope.valid=false;
-      console.log('HandoutCtrl called');
-      $http({url: '@@nodeserver@@:@@nodeport@@/handouts_res', method: 'GET'})
-          .error(function(data, status, headers, config) {
-               console.log('Error: ' + data + "Status: " + status );
-               $scope.valid=false;
-          })
-          .success(function(data, status, headers, config) {
-              if (data.result === -1) {
-                  $scope.valid=false;
-                  return;
-              } else {
-                  $scope.valid=true;
-                  $scope.result = data.result;
-              }
-          })
-      $scope.download = function(fileName) {
-          console.log('download called');
-          console.log(fileName);
-          $http({url: '@@nodeserver@@:@@nodeport@@/download', method: 'POST', data: {'file': fileName, 'resource': 'handouts'}, responseType: 'arraybuffer'})
-              .error(function(data, status, headers, config) {
-                   console.log('Error: ' + data + "Status: " + status );
-              })
-              .success(function(data, status, headers, config) {
-                  $scope.result = null;
-                  $scope.valid = true;
-                  console.log('download started...');
-                  var blob = new Blob([data], {type: "application/pdf"});
-                  var urlCreator = window.URL || window.webkitURL || window.mozURL || window.msURL;
-                  navigator.saveBlob = navigator.saveBlob || navigator.msSaveBlob; // only works for IE
-                  if (navigator.saveBlob) {
-                      navigator.saveBlob(blob, 'download.pdf');
-                  } else {
-                      var url = urlCreator.createObjectURL(blob);
-                      $scope.content = $sce.trustAsResourceUrl(url);
-                  }
-              })
-      }
+  .controller('HandoutsCtrl', ['$scope', 'myFac', function($scope, myFac) {
+      console.log('HandoutsCtrl called');
+      var subdir = 'handouts/';
+      var request = 'handouts_res';
+      var fileType = '.pdf';
+      myFac.init(subdir, request, fileType, $scope);
   }])
   .controller('QuizzesCtrl', ['$scope', '$http', '$cookies', function($scope, $http, $cookies) {
 ;

@@ -6,7 +6,6 @@ angular.module('myApp', [
   'ui.router',
   'ui.bootstrap',
   'myApp.filters',
-  'myApp.services',
   'myApp.directives',
   'myApp.factories',
   'myApp.controllers'
@@ -57,24 +56,5 @@ angular.module('myApp', [
       url: "/@@webdir@@/sorry",
       templateUrl: "/@@webdir@@/partials/sorry.html"
     })
-}])
+}]);
 
-.config(['$httpProvider',  function($httpProvider) {
-    $httpProvider.interceptors.push('myInterceptor');
-}])
-
-.config(['$sceProvider',  function($sceProvider) {
-    $sceProvider.enabled(false);
-    ;
-}])
-
-
-.run([function() {
-    sessionStorage.LingKey = 'invalid';
-    // sessionStorage.setItem("authkey", "I am initialzed in module.run");
-    // $rootScope.credentials.storedKey = sessionStorage.getItem("authkey");
-}])
-
-.run(function($http) {
-	$http.defaults.headers.common.Authorization = "Basic invalid"
-}) ;

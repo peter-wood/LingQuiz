@@ -1,14 +1,16 @@
 <div class="container" ng-controller='HandoutsCtrl'>
     <h2>Handouts</h2>
     <br/><br/>
-    <div ng-show="result" class='list-group'>
-	<a class='list-group-item' ng-click="download(stuff)" ng-repeat="stuff in result"> 
-            {{stuff}}
+    <div ng-show="list" class='list-group'>
+	<a class='list-group-item' ng-click="download(item)" ng-repeat="item in result"> 
+            {{item}}
         </a>
     </div>
-    <div ng-show='content' class='container pagination-centered' style="width:90%;">
+    <div ng-show='fileName' class='container pagination-centered' style="width:90%;">
+	<div class='text-center'><a target="_blank" ng-href="{{fileName}}">Download</a> </div>
+	<br/> 
         <div class="embed-responsive embed-responsive-16by9">
-            <iframe class="embed-responsive-item" src="{{content}}"></iframe>
+            <iframe class="embed-responsive-item" ng-src="{{fileName}}"></iframe>
         </div>
     </div>
     <div ng-hide='valid'>
