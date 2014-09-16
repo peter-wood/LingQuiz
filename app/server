@@ -59,5 +59,8 @@ var server = app.listen(config.port, function () {
 	console.log('Listening on port %d', server.address().port);
 	console.log('Setup: %s', config.setup);
 	console.log('Deployment: %s', config.deployment);
+	// mongo.getQuestion(function(data) {
+	//	console.log(data);
+	// });
 });
 
