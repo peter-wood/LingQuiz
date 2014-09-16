@@ -21,7 +21,19 @@ mySchema.methods.success = function() {
         console.log( 'saved record for ' + this.nsid);
 };
 
+var questionSchema = mongoose.Schema( {
+	question: String,
+    	resource: String,
+    	opt1: String,
+    	opt2: String,
+    	opt3: String,
+    	opt4: String,
+    	opt5: String,
+    	correct: Number,
+    	id: Number});
+
 var user = mongoose.model('User', mySchema);
+var question = mongoose.model('samplequestions', questionSchema);
 
 var testingData = [
     {name: 'peter', nsid: 'pew191', snum: 1234, quizzes: null, reserved: null},
@@ -69,6 +81,53 @@ var printAll = function() {
             }
     });
 };
+
+var questionCache = [];
+
+var getQuestions = function(cb) {
+	question.find()
+	.select('question resource opt1 opt2 opt3 opt4 opt5 correct id')
+	.exec(function(err, questions) {
+		if (err) return console.error(err);
+		if (questions.length === 0) {
+			console.error('no matching questions found');
+			return false;
+		}
+		var temp = {};
+		for (var i = 0; i < questions.length; ++i) {
+			temp.question = questions[i].question;
+			temp.resource = questions[i].resource;
+			temp.opt1 = questions[i].opt1;
+			temp.opt2 = questions[i].opt2;
+			temp.opt3 = questions[i].opt3;
+			temp.opt4 = questions[i].opt4;
+			temp.opt5 = questions[i].opt5;
+			temp.correct = questions[i].correct;
+			temp.id = questions[i].id;
+			questionCache.push(temp);
+			// console.log('adding %s', JSON.stringify(temp));
+		}
+	cb();
+	});
+}
+
+var questioncb = null;
+
+var getOneQuestion = function(cb) {
+	questioncb = cb
+	if (questionCache.length === 0) {
+		getQuestions(retQuestion);
+	} 
+	else retQuestion();
+}
+
+var retQuestion = function() {
+	var max = questionCache.length;
+	var resultId = Math.floor(Math.random(max + 1));
+	var result =  questionCache.splice(resultId, 1);
+	questioncb(result);
+}
+
 
 
 var addUser = function(nsid, name, snum, quizzes, reserved) {
@@ -119,6 +178,7 @@ mongo.init = init;
 mongo.printAll = printAll;
 mongo.deleteAll = deleteAll;
 mongo.haveUser = haveUser;
+mongo.getQuestion = getOneQuestion;
 
 module.exports = mongo;
 
