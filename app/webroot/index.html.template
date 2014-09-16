@@ -19,7 +19,6 @@
   <link rel="stylesheet" href="css/bootstrap-theme.min.css">
   <script src="js/modernizr-2.6.2.min.js"></script>
   <script src="js/angular.min.js"></script>
-  <script src="js/angular-cookies.min.js"></script>
   <script src="js/angular-ui-router.min.js"></script>
 <script src="js/ui-bootstrap-tpls.min.js"></script>
 </head>
@@ -42,16 +41,16 @@
             <a class="navbar-brand" href="/main">Linguistics 111 - Testing</a>
         </div>
 
-        <div class="collapse navbar-collapse" ng-class="{in: !navCollapsed}">
+        <div class="collapse navbar-collapse" ng-class="{in: !navCollapsed}" >
             <ul class="nav navbar-nav">
-                <li class="dropdown">
+                <li class="dropdown" ng-click="console.log($event)">
                     <a role="button" class="dropdown-toggle"> Menu <b class="caret"></b> </a>
                     <ul class="dropdown-menu">
-                        <li><a ui-sref="main">Home</a></li>
-                        <li><a ui-sref="slides">Slides</a></li>
-                        <li><a ui-sref="book">Textbook</a></li>
-                        <li><a ui-sref="handouts">Handouts</a></li>
-                        <li><a ui-sref="quizzes">Quizzes</a></li>
+                        <li><a ng-init="clicked = false" ui-sref="main">Home</a></li>
+                        <li><a ng-init="clicked = false" ui-sref="slides">Slides</a></li>
+                        <li><a ng-init="clicked = false" ui-sref="book">Textbook</a></li>
+                        <li><a ng-init="clicked = false" ui-sref="handouts">Handouts</a></li>
+                        <li><a ng-init="clicked = false" ui-sref="quizzes">Quizzes</a></li>
 			<!-- <li><a ng-href="/wiki">Wiki</a></li> -->
                     </ul>
                 </li>

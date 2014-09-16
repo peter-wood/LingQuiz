@@ -1,6 +1,16 @@
-<div class="container">
-	<h2>Quizzes</h2>
-	<p>There are currently no open quizzes.</p>
+<div class="container" ng-controller="QuizzesCtrl">
+	<h2 ng-click="reset()">Quizzes</h2>
+    <ul>
+        <li>{{result.question}}</li>
+        <li>{{result.opt1}}</li>
+        <li>{{result.opt2}}</li>
+        <li>{{result.opt3}}</li>
+        <li>{{result.opt4}}</li>
+        <li>{{result.opt5}}</li>
+        <li>{{result.correct}}</li>
+        <li>{{result.id}}</li>
+    </ul>
+    <button ng-click="sendGet()">Refresh</button>
 </div>
 
 

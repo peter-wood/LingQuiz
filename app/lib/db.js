@@ -33,7 +33,7 @@ var questionSchema = mongoose.Schema( {
     	id: Number});
 
 var user = mongoose.model('User', mySchema);
-var question = mongoose.model('samplequestions', questionSchema);
+var question = mongoose.model(config.currentQuestionSet, questionSchema);
 
 var testingData = [
     {name: 'peter', nsid: 'pew191', snum: 1234, quizzes: null, reserved: null},
@@ -93,8 +93,8 @@ var getQuestions = function(cb) {
 			console.error('no matching questions found');
 			return false;
 		}
-		var temp = {};
 		for (var i = 0; i < questions.length; ++i) {
+            var temp = {};
 			temp.question = questions[i].question;
 			temp.resource = questions[i].resource;
 			temp.opt1 = questions[i].opt1;
@@ -105,7 +105,6 @@ var getQuestions = function(cb) {
 			temp.correct = questions[i].correct;
 			temp.id = questions[i].id;
 			questionCache.push(temp);
-			// console.log('adding %s', JSON.stringify(temp));
 		}
 	cb();
 	});
@@ -123,8 +122,11 @@ var getOneQuestion = function(cb) {
 
 var retQuestion = function() {
 	var max = questionCache.length;
-	var resultId = Math.floor(Math.random(max + 1));
-	var result =  questionCache.splice(resultId, 1);
+	var resultId = Math.floor(Math.random()*(max + 1));
+	var result =  questionCache[resultId];
+	questionCache.splice(resultId, 1);
+    console.log('returning max %d resultId %d', max, resultId);
+    console.log('cache has %d questions', questionCache.length);
 	questioncb(result);
 }
 

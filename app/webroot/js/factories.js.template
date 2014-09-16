@@ -8,26 +8,35 @@ angular.module('myApp.factories', [])
 		scope.fileName = null;
 		scope.valid = false;
 		scope.result = null;
-		$http.jsonp(encodeURI('@@nodeserver@@:@@nodeport@@/' + request + '?callback=JSON_CALLBACK'))
+
+        scope.sendGet = function() {
+            $http.jsonp(encodeURI('@@nodeserver@@:@@nodeport@@/' + request + '?callback=JSON_CALLBACK'))
 	         .success(function(data, status, headers, config) {
                      if (data.result === -1) {
+                        console.log('got an error');
                         scope.valid=false;
                      return;
                      } else {
+                        console.log('got data: %s', JSON.stringify(data.result));
                         scope.valid=true;
-		        scope.list=true;
+                        scope.list=true;
                         scope.result = data.result;
                      }
                  });
+        }
+
 		scope.reset = function() {
 		      scope.list = true;
 		      scope.fileName = null;
 		};
+        
 		scope.download = function(file) {
 		      console.log('@@nodeserver@@:@@nodeport@@/resources/' + subdir + file + fileType);
 		      scope.fileName = $sce.trustAsResourceUrl('@@nodeserver@@:@@nodeport@@/resources/' + subdir + file + fileType);
 		      scope.list = false;
 		};
+
+        scope.sendGet();
 	}
 	return fac;
     }]) ;

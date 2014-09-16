@@ -6,6 +6,7 @@ config.slides = '/home/peter/nodejs/LingQuiz/app/resources/slides/';
 config.handouts = '/home/peter/nodejs/LingQuiz/app/resources/handouts/';
 config.book = '/home/peter/nodejs/LingQuiz/app/resources/book/';
 config.db = 'Ling111PW';
+config.currentQuestionSet = 'questions1';
 config.loginValidFor = 45; // in minutes
 config.purgeInterval = 30; // in seconds
 // @@webroot@@=/srv/http
