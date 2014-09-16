@@ -3,4 +3,4 @@ node_modules/
 bower_components/
 *.swp
 app/resources/*
-app/f14*
+tmp/

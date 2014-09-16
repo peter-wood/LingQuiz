@@ -1,5 +1,5 @@
 <div class="container" ng-controller='HandoutsCtrl'>
-    <h2>Handouts</h2>
+    <h2 ng-click="reset()">Handouts</h2>
     <br/><br/>
     <div ng-show="list" class='list-group'>
 	<a class='list-group-item' ng-click="download(item)" ng-repeat="item in result"> 
