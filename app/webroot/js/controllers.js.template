@@ -69,4 +69,8 @@ angular.module('myApp.controllers', [])
       var fileType = 'na';
       myFac.init(subdir, request, fileType, $scope);
       $scope.clicked = true;
+      $scope.answer = 0;
+      $scope.submission = function(sub) {
+      	$scope.answer = sub;
+      };
   }]);

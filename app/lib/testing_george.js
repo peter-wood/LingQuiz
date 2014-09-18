@@ -6,6 +6,7 @@ config.slides = '/storage/nodejs/LingTesting/app/resources/slides/';
 config.handouts = '/storage/nodejs/LingTesting/app/resources/handouts/';
 config.book = '/storage/nodejs/LingTesting/app/resources/book/';
 config.db = 'LingTesting';
+config.currentQuestionSet = 'samplequestions';
 config.loginValidFor = 45; // in minutes
 config.purgeInterval = 30; // in seconds
 // @@webroot@@=/storage

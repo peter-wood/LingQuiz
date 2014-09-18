@@ -122,7 +122,7 @@ var getOneQuestion = function(cb) {
 
 var retQuestion = function() {
 	var max = questionCache.length;
-	var resultId = Math.floor(Math.random()*(max + 1));
+	var resultId = Math.floor(Math.random()*(max));
 	var result =  questionCache[resultId];
 	questionCache.splice(resultId, 1);
     console.log('returning max %d resultId %d', max, resultId);
