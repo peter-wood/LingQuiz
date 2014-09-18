@@ -1,1 +1,0 @@
-testing_sammy.js
