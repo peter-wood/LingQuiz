@@ -3,4 +3,5 @@ node_modules/
 bower_components/
 *.swp
 app/resources/*
+app/lib/config.js
 tmp/
