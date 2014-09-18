@@ -21,7 +21,7 @@ angular.module('myApp', [
   $stateProvider
     .state("main", {
       url: '/@@webdir@@',
-      templateUrl: "/@@webdir@@//partials/main.html",
+      templateUrl: "/@@webdir@@/partials/main.html",
       controller: "MainCtrl"
     })
     .state("slides", {

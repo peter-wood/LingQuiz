@@ -42,6 +42,8 @@ fi
 getConf $1
 echo "Webroot is set to $webroot. "
 echo "Webdir is set to $webdir. Creating..."
+rm -rf "$webroot/$webdir" 
+echo "removed old files"
 mkdir "$webroot/$webdir" || error "Could not create directory."
 echo "Success"
 echo "copying files to webdir..."

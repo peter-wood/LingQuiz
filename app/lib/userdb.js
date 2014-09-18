@@ -1,39 +1,18 @@
-var mongoose = require('mongoose');
 var crypto = require('crypto');
-var config = require('./config.js');
-var db;
+var config = require('./config');
 
-var connect = function() {
-    mongoose.connect('mongodb://localhost/' + config.db);
-    db = mongoose.connection;
-    db.on('error', console.log.bind(console, 'connection error:'));
-    db.once('open', console.log.bind(console, 'connection established'));
-};
-
-var mySchema = mongoose.Schema( {
+var userSchema = mongoose.Schema( {
     name: String,
     nsid: String,
     snum: Number,
     quizzes: Object,
     reserved: Object});
 
-mySchema.methods.success = function() {
+userSchema.methods.success = function() {
         console.log( 'saved record for ' + this.nsid);
 };
 
-var questionSchema = mongoose.Schema( {
-	question: String,
-    	resource: String,
-    	opt1: String,
-    	opt2: String,
-    	opt3: String,
-    	opt4: String,
-    	opt5: String,
-    	correct: Number,
-    	id: Number});
-
-var user = mongoose.model('User', mySchema);
-var question = mongoose.model(config.currentQuestionSet, questionSchema);
+var user = mongoose.model('User', userSchema);
 
 var testingData = [
     {name: 'peter', nsid: 'pew191', snum: 1234, quizzes: null, reserved: null},
@@ -48,8 +27,9 @@ var init = function () {
     deleteAll();
     for (index = 0; index < testingData.length; ++index) {
         console.log('creating: ' + JSON.stringify(testingData[index]));
-        addUser( testingData[index].nsid, 
-	    testingData[index].name,
+        addUser( 
+            testingData[index].nsid, 
+            testingData[index].name,
             testingData[index].snum,
             testingData[index].quizzes,
             testingData[index].reserved);
@@ -82,58 +62,9 @@ var printAll = function() {
     });
 };
 
-var questionCache = [];
-
-var getQuestions = function(cb) {
-	question.find()
-	.select('question resource opt1 opt2 opt3 opt4 opt5 correct id')
-	.exec(function(err, questions) {
-		if (err) return console.error(err);
-		if (questions.length === 0) {
-			console.error('no matching questions found');
-			return false;
-		}
-		for (var i = 0; i < questions.length; ++i) {
-            var temp = {};
-			temp.question = questions[i].question;
-			temp.resource = questions[i].resource;
-			temp.opt1 = questions[i].opt1;
-			temp.opt2 = questions[i].opt2;
-			temp.opt3 = questions[i].opt3;
-			temp.opt4 = questions[i].opt4;
-			temp.opt5 = questions[i].opt5;
-			temp.correct = questions[i].correct;
-			temp.id = questions[i].id;
-			questionCache.push(temp);
-		}
-	cb();
-	});
-}
-
-var questioncb = null;
-
-var getOneQuestion = function(cb) {
-	questioncb = cb
-	if (questionCache.length === 0) {
-		getQuestions(retQuestion);
-	} 
-	else retQuestion();
-}
-
-var retQuestion = function() {
-	var max = questionCache.length;
-	var resultId = Math.floor(Math.random()*(max));
-	var result =  questionCache[resultId];
-	questionCache.splice(resultId, 1);
-    console.log('returning max %d resultId %d', max, resultId);
-    console.log('cache has %d questions', questionCache.length);
-	questioncb(result);
-}
-
-
-
 var addUser = function(nsid, name, snum, quizzes, reserved) {
-    var u = new user({name: name, nsid: nsid, snum: snum, quizzes: quizzes, reserved:reserved});
+    var u = new user({name: name, nsid: nsid, snum: snum,
+        quizzes: quizzes, reserved:reserved});
     u.save(function(err, u) {
         if (err) return console.error(err);
         u.success();
@@ -174,15 +105,13 @@ var haveUser = function(nsid, pass, cb) {
             
 
 
-var mongo = connect;
-mongo.connect = connect;
-mongo.init = init;
-mongo.printAll = printAll;
-mongo.deleteAll = deleteAll;
-mongo.haveUser = haveUser;
-mongo.getQuestion = getOneQuestion;
+var userdb = {};
+userdb.init = init;
+userdb.printAll = printAll;
+userdb.deleteAll = deleteAll;
+userdb.haveUser = haveUser;
 
-module.exports = mongo;
+module.exports = userdb;
 
 
 

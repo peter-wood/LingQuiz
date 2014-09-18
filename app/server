@@ -1,12 +1,22 @@
 #!/usr/bin/env node
-var express = require('express');
+
+// create global db connection
 var config = require(__dirname + '/lib/config.js');
-var mongo = require(__dirname + '/lib/db.js');
+var mongoose = require('mongoose');
+mongoose.connect('mongodb://localhost/' + config.db);
+var db = mongoose.connection;
+db.on('error', console.log.bind(console, 'connection error:'));
+db.once('open', console.log.bind(console, 'connection established'));
+global.mongoose  = mongoose;
+
+var express = require('express');
+var quiz = require(__dirname + '/lib/quizdb.js');
 var auth = require(__dirname + '/lib/auth.js');
+var userdb = require(__dirname + '/lib/userdb.js');
 var cookieParser = require('cookie-parser')
-mongo.connect();
-mongo.init();
-mongo.printAll();
+
+userdb.init();
+userdb.printAll();
 
 var app = express();
 
@@ -53,12 +63,13 @@ app.use('/quizzes_res', quizzes);
 app.use('/resources/book', express.static(__dirname + '/resources/book/'));
 app.use('/resources/handouts', express.static(__dirname + '/resources/handouts/'));
 app.use('/resources/slides', express.static(__dirname + '/resources/slides/'));
+app.use('/resources/images', express.static(__dirname + '/resources/images/'));
 
 var server = app.listen(config.port, function () {
 	console.log('Listening on port %d', server.address().port);
 	console.log('Setup: %s', config.setup);
 	console.log('Deployment: %s', config.deployment);
-	mongo.getQuestion(function(data) {
+	quiz.getQuestion(function(data) {
 	    console.log(data);
 	});
 });

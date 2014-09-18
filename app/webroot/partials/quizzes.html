@@ -1,35 +1,32 @@
 <div class="container" ng-controller="QuizzesCtrl">
 	<h2 ng-click="reset()">Quizzes</h2>
-	<div class='panel panel-default' ng-show='list'>
+	<div class='panel panel-default' ng-show='valid'>
 		<div class='panel-heading'>
 			<h5 class='panel-title'>
 				{{result.question}}
 			</h5>
 		</div>
-		<div class='panel-body'>
-			<div class='list-group'>
-				<a ng-if='result.opt1.length > 0' class='list-group-item' ng-click="submission(1)">{{result.opt1 | optfilter }}</a>
-				<a ng-if='result.opt2.length > 0' class='list-group-item' ng-click="submission(2)">{{result.opt2 | optfilter }}</a>
-				<a ng-if='result.opt3.length > 0' class='list-group-item' ng-click="submission(3)">{{result.opt3 | optfilter }}</a>
-				<a ng-if='result.opt4.length > 0' class='list-group-item' ng-click="submission(4)">{{result.opt4 | optfilter }}</a>
+		<div class='panel-body row'>
+			<div class='list-group col-md-8'>
+				<a ng-if='result.text.length > 0' class='list-group-item list-group-item-info'>{{result.text}}</a>
+				<a ng-if='result.opt1.length > 0' class='list-group-item' ng-click="submission(1)">{{result.opt1}}</a>
+				<a ng-if='result.opt2.length > 0' class='list-group-item' ng-click="submission(2)">{{result.opt2}}</a>
+				<a ng-if='result.opt3.length > 0' class='list-group-item' ng-click="submission(3)">{{result.opt3}}</a>
+				<a ng-if='result.opt4.length > 0' class='list-group-item' ng-click="submission(4)">{{result.opt4}}</a>
 				<a ng-if='result.opt5.length > 0' class='list-group-item' ng-click="submission(5)">{{result.opt5}}</a>
-				<a class='list-group-item' ng-click="">{{result.correct}}</a>
-				<a class='list-group-item' ng-click="">{{result.id}}</a>
 			</div>
+            <div class='col-md-4'>
+                &nbsp;
+                <a ng-click="open()" ng-if='result.resource.length > 0'>
+                    <img class='img-responsive' style="height:300px;" ng-src='{{url}}{{result.resource}}'/>
+                </a>
+            </div>
+            <div class='row col-md-12'>
 			<button ng-if = 'answer === 0' type='button' class='btn btn-warning'><span class='glyphicon glyphicon-unchecked'></span></button>
 			<button ng-if = 'answer != result.correct && answer > 0' type='button' class='btn btn-danger'><span class='glyphicon glyphicon-remove'></span></button>
 			<button ng-if = 'answer === result.correct' type='button' class='btn btn-success'><span class='glyphicon glyphicon-ok'></span></button>
 			<button type='button' class='btn btn-primary' ng-click="submission(0); sendGet()">Next Question</button>
-			<br/>
-			correct: {{result.correct}}
-			<br/>
-			answer: {{answer}}
-			<br/>
-			answer === 0? {{answer === 0}}
-			<br/>
-			answer != 0? {{answer != 0}}
-			<br/>
-			answer correct? {{answer === result.correct}}
+            </div>
 		</div>
 	</div>
     <div ng-hide='valid'>

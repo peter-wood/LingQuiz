@@ -2,7 +2,7 @@ var express = require('express');
 var fs = require('fs');
 var auth = require('../lib/auth.js');
 var config = require('../lib/config.js');
-var mongo = require('../lib/db.js');
+var quiz = require('../lib/quizdb.js');
 var router = express.Router();
 var currentRes = null;
 var result = null;
@@ -36,7 +36,7 @@ var getQuestion = function() {
     console.log('respponse already send');
     return;
   }
-  mongo.getQuestion(sendQuestion);
+  quiz.getQuestion(sendQuestion);
 }
 
 module.exports = router;
