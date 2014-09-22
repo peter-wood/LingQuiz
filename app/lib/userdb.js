@@ -1,12 +1,5 @@
 var crypto = require('crypto');
 var config = require('./config');
-var recordSchema = mongoose.Schema( {
-    coll: String,
-    question: Number,
-    correct: Number,
-    answer: Number,
-    time: { type: Date, default: Date.now},
-    setHash: Number});
 
 var addQuestion = function(userName, collection, id, correct, answer, date, hash, callback) {
     user.findOne({nsid: userName}, function(err, u) {
@@ -26,8 +19,13 @@ var addQuestion = function(userName, collection, id, correct, answer, date, hash
     });
 }
 
-
-
+var recordSchema = mongoose.Schema( {
+    coll: String,
+    question: Number,
+    correct: Number,
+    answer: Number,
+    time: { type: Date, default: Date.now},
+    setHash: Number});
 
 var userSchema = mongoose.Schema( {
     name: String,
@@ -43,9 +41,9 @@ userSchema.methods.success = function() {
 var user = mongoose.model('User', userSchema);
 
 var testingData = [
-    {name: 'peter', nsid: 'pew191', snum: 1234, quizzes: null, reserved: null},
-    {name: 'anita', nsid: 'aat123', snum: 5678, quizzes: {test: 5678}, reserved: {test: 'salt2'}},
-    {name: 'john doe', nsid: 'sts456', snum: 9012, quizzes: null, reserved: null}];
+    {name: 'peter', nsid: 'pew191', snum: 1234},
+    {name: 'anita', nsid: 'aat123', snum: 5678},
+    {name: 'john doe', nsid: 'sts456', snum: 9012}];
 
 
 // In testing only: Populate database with dummy entries.
@@ -58,9 +56,7 @@ var init = function () {
         addUser( 
             testingData[index].nsid, 
             testingData[index].name,
-            testingData[index].snum,
-            testingData[index].quizzes,
-            testingData[index].reserved);
+            testingData[index].snum);
     };
     printAll()
 };
@@ -90,9 +86,8 @@ var printAll = function() {
     });
 };
 
-var addUser = function(nsid, name, snum, quizzes, reserved) {
-    var u = new user({name: name, nsid: nsid, snum: snum,
-        quizzes: quizzes, reserved:reserved});
+var addUser = function(nsid, name, snum) {
+    var u = new user({name: name, nsid: nsid, snum: snum});
     u.save(function(err, u) {
         if (err) return console.error(err);
         u.success();

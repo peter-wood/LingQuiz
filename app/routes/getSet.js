@@ -88,9 +88,23 @@ var reduceCounter = function(err, questionid) {
 }
 
 var storeQuestion = function(question) {
+     // var q = Object.create(question);
+     var q = {};
+     q.question = question.question;
+     q.text = question.text;
+     q.opt1 = question.opt1;
+     q.opt2 = question.opt2;
+     q.opt3 = question.opt3;
+     q.opt4 = question.opt4;
+     q.opt5 = question.opt5;
+     q.id = question.id;
+     q.resource = question.resource;
+     q.correct = false;
+     q.answer = 0;
+     console.log('in store question: ', q);
      var correct = question.correct;
-     question.correct = -1;
-     result.questions.push(question);
+     result.questions.push(q);
+     console.log('in store question now: ', q);
      userdb.addQuestion(
                 user,
                 collection,

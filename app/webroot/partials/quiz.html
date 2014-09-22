@@ -1,33 +1,36 @@
 <div class="container" ng-controller="QuizCtrl">
-<h2 id = 'testing' ng-click="reset()">{{quiz}}</h2>
+	<h2 ng-click="reset()">{{quiz}}<span class='pull-right'>Time: {{time | date:'mm:ss' }}</span></h2>
+	<div><alert ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)">{{alert.msg}}</alert></div>
 	<div class='panel panel-default' ng-show='valid'>
-		<div class='panel-heading'>
+		<div class='panel-heading' ng-hide="start">
 			<h5 class='panel-title'>
-				{{result.question}}
+				<b>Question {{currentIndex + 1}}/{{numQuestions}}: </b>	{{questions[currentIndex]['question']}}
+				<span class="pull-right">Correct: {{gotRight}}/{{numQuestions}}</span>
 			</h5>
 		</div>
 		<div class='panel-body row'>
-			<div class='list-group col-md-8'>
-				<a ng-if='result.text.length > 0' class='list-group-item list-group-item-warning'>{{result.text}}</a>
-				<a ng-if='result.opt1.length > 0' id ='b1' class='list-group-item' ng-click="submission(1)">{{answer}}:::{{result.opt1}}</a>
-				<a ng-if='result.opt2.length > 0' id ='b2' class='list-group-item' ng-click="submission(2)">{{result.opt2}}</a>
-				<a ng-if='result.opt3.length > 0' id ='b3' class='list-group-item' ng-click="submission(3)">{{result.opt3}}</a>
-				<a ng-if='result.opt4.length > 0' id ='b4' class='list-group-item' ng-click="submission(4)">{{result.opt4}}</a>
-				<a ng-if='result.opt5.length > 0' id ='b5' class='list-group-item' ng-click="submission(5)">{{result.opt5}}</a>
+			<div class='list-group col-md-8' ng-hide='start'>
+				<a ng-if='questions[currentIndex]["text"].length > 0' class='list-group-item list-group-item-warning'>{{questions[currentIndex]["text"]}}</a>
+				<a ng-if='questions[currentIndex]["opt1"].length > 0' id ='b1' class='list-group-item' ng-click="submission(1)"><b>1:</b> {{questions[currentIndex]["opt1"]}}</a>
+				<a ng-if='questions[currentIndex]["opt2"].length > 0' id ='b2' class='list-group-item' ng-click="submission(2)"><b>2:</b> {{questions[currentIndex]["opt2"]}}</a>
+				<a ng-if='questions[currentIndex]["opt3"].length > 0' id ='b3' class='list-group-item' ng-click="submission(3)"><b>3:</b> {{questions[currentIndex]["opt3"]}}</a>
+				<a ng-if='questions[currentIndex]["opt4"].length > 0' id ='b4' class='list-group-item' ng-click="submission(4)"><b>4:</b> {{questions[currentIndex]["opt4"]}}</a>
+				<a ng-if='questions[currentIndex]["opt5"].length > 0' id ='b5' class='list-group-item' ng-click="submission(5)"><b>5:</b> {{questions[currentIndex]["opt5"]}}</a>
 			</div>
-            <div class='col-md-4'>
-                &nbsp;
-                <a ng-click="open()" ng-if='result.resource.length > 0'>
-                    <img class='img-responsive' style="height:300px;" ng-src='{{url}}{{result.resource}}'/>
-                </a>
-            </div>
-            <div class='row col-md-12'>
-			<button ng-if = 'answer === 0' type='button' class='btn btn-warning'><span class='glyphicon glyphicon-unchecked'></span></button>
-			<button ng-if = 'answer != result.correct && answer > 0' type='button' class='btn btn-danger'><span class='glyphicon glyphicon-remove'></span></button>
-			<button ng-if = 'answer === result.correct' type='button' class='btn btn-success'><span class='glyphicon glyphicon-ok'></span></button>
-			<button type='button' class='btn btn-primary'
-                ng-click="nextQuestion()">Next Question</button>
-            </div>
+            		<div class='col-md-4'ng-hide='start'>
+				&nbsp;
+				<a ng-click="open()" ng-if='questions[currentIndex]["resource"].length > 0'>
+				    <img class='img-responsive' style="height:300px;" ng-src='{{url}}{{questions[currentIndex]["resource"]}}'/>
+				</a>
+		        </div>
+			<div class='row col-md-12'>
+				<button ng-if = 'start' type='button' class='btn btn-success' ng-click="startQuiz()">Start</button>
+				<button ng-if = '!start && back' type='button' class='btn btn-primary' ng-click="nextQuestion('-')">Back</button>
+				<button ng-if = '!start && questions[currentIndex]["answer"] === 0' type='button' class='btn btn-warning'><span class='glyphicon glyphicon-unchecked'></span></button>
+				<button ng-if = '!start && !questions[currentIndex]["correct"] && questions[currentIndex]["answer"] > 0' type='button' class='btn btn-danger'><span class='glyphicon glyphicon-remove'></span></button>
+				<button ng-if = '!start && questions[currentIndex]["correct"]' type='button' class='btn btn-success'><span class='glyphicon glyphicon-ok'></span></button>
+				<button ng-if = '!start && next' type='button' class='btn btn-primary' ng-click="nextQuestion('+')">Next Question</button>
+		       </div>
 		</div>
 	</div>
     <div ng-hide='valid'>

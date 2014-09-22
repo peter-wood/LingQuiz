@@ -26,6 +26,7 @@ router.get('/', function(req, res) {
     } else {
       console.log('authorized :-)');
       var data =JSON.parse(req.query.data);
+      console.log('check got: ', data);
       collection = data.quiz;
       id = data.id;
       answer = data.answer;

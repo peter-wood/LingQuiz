@@ -38,6 +38,7 @@ var getLength = function(collection, cb) {
 
 var checkAnswer = function(collection, id, answer, cb) {
     var question = setModel(collection);
+    console.log('userdb.checkAnswer got: ', collection, id, answer, cb);
     question.findOne({'id': id}, function(err, q) {
         if (err) {
             console.log('checkAnswer ran into a problem');
