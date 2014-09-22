@@ -69,7 +69,7 @@ var printAuth = function() {
 var isAuthenticated = function(key) {
 	if (authenticated[key]){ 
 		extendAuth(key);
-		return true; 
+		return authenticated[key]; 
 	} else {
 		return false;
 	}

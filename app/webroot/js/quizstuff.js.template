@@ -1,0 +1,151 @@
+'use strict';
+
+/* Controllers */
+
+angular.module('myApp.quizstuff', [])
+  .controller('QuizzesCtrl', ['$scope', 'myFac', '$state', '$rootScope', function($scope, myFac, $state, $rootScope) {
+      if ($scope.clicked === true) return;
+      console.log('QuizzesCtrl called');
+      var subdir = 'quizzes/';
+      var request = 'quizzes_res';
+      var fileType = 'na';
+      myFac.init(subdir, request, fileType, $scope);
+      $scope.clicked = true;
+      $scope.goto = function(state) {
+          console.log('goto: ', state);
+          $rootScope.currentQuiz = state;
+          $state.go('quiz');
+      }
+  }])
+
+   .controller('ModalInstanceCtrl', ['$scope', '$modalInstance',  function ($scope, $modalInstance) {
+      $scope.ok = function () {
+        $modalInstance.close();
+      };
+
+      $scope.cancel = function () {
+        $modalInstance.dismiss();
+      };
+   }])
+
+  .controller('QuizCtrl', ['$scope', '$modal', '$stateParams', '$http', '$rootScope', function($scope, $modal, $stateParams, $http, $rootScope) {
+      
+    var getQuestions = function(which) {
+        if ($scope.result.length > 0) {
+            console.log($scope.result);
+            console.log('must have been called before, exiting');
+            return;
+        }
+          console.log('in getQuestions, which: %s', which);
+          var data = {};
+          data.which = which;
+          $http.jsonp('@@nodeserver@@:@@nodeport@@/getset?data=' 
+            + encodeURIComponent(JSON.stringify(data)) 
+            +'&callback=JSON_CALLBACK')
+              .success(function(QuizRecord) {
+                  if (QuizRecord.result === -1) {
+                      console.log('got invalid result');
+                      $scope.valid = false;
+                      return
+                  } else {
+                      $scope.valid = true
+                      console.log('got data: %s', JSON.stringify(QuizRecord));
+                      console.log('got questions: %s', JSON.stringify(QuizRecord.questions));
+                      $scope.questions = QuizRecord.questions;
+                      $scope.time = QuizRecord.time;
+                      $scope.save = QuizRecord.save;
+                      $scope.retake = QuizRecord.retake;
+                      $scope.numQuestions = QuizRecord.numQuestions;
+                      $scope.hash = QuizRecord.hash;
+                  }
+              });
+      }
+
+      $scope.finish = function() {
+          console.log('no more questions');
+      }
+      
+      $scope.nextQuestion = function() {
+          if ($scope.currentIndex === $scope.questions.length) {
+              $scope.finish();
+          }
+          $scope.result.question = $scope.questions[$scope.currentIndex].question;
+          $scope.result.text = $scope.questions[$scope.currentIndex].text;
+          $scope.result.opt1 = $scope.questions[$scope.currentIndex].opt1;
+          $scope.result.opt2 = $scope.questions[$scope.currentIndex].opt2;
+          $scope.result.opt3 = $scope.questions[$scope.currentIndex].opt3;
+          $scope.result.opt4 = $scope.questions[$scope.currentIndex].opt4;
+          $scope.result.opt5 = $scope.questions[$scope.currentIndex].opt5;
+          $scope.result.resource = $scope.questions[$scope.currentIndex].resource;
+          $scope.result.id = $scope.questions[$scope.currentIndex].id;
+          $scope.result.correct = $scope.questions[$scope.currentIndex].correct;
+          ++$scope.currentIndex;
+      }
+
+      var checkAnswer = function() {
+            var data = {}
+            data.quiz = $scope.quiz;
+            data.id = $scope.result.id;
+            data.answer = $scope.answer;
+
+            $http.jsonp('@@nodeserver@@:@@nodeport@@/check?data=' 
+            + encodeURIComponent(JSON.stringify(data)) 
+            +'&callback=JSON_CALLBACK')
+              .success(function(checkRes) {
+                  if (checkRes.result === -1) {
+                      console.log('got invalid result');
+                      return
+                  } else {
+                      console.log('got data: %s', JSON.stringify(checkRes));
+                      $scope.correct = checkRes.correct;
+                  }
+              });
+      }
+
+      $scope.submission = function(sub) {
+      	$scope.answer = sub;
+        var myid = 'b' + sub.toString();
+        var cs = 'list-group-item ng-binding ng-scope';
+        var cn = 'list-group-item ng-binding ng-scope list-group-item-info';
+        for(var x = 1; x < 6; ++ x) {
+            if (x === sub) {
+                document.getElementById('b' + x.toString()).className = cn;
+            }
+            else {
+                document.getElementById('b' + x.toString()).className = cs;
+            }
+        }
+        checkAnswer();
+      };
+      
+      $scope.open = function (size) {
+               var modalInstance = $modal.open({
+              template:  '<div class="modal-header"> <h3 class="modal-title">Click outside the image to close</h3> </div> <div class="modal-body"><img ng-src="'+$scope.url+$scope.result.resource+'" class="img-responsive" style="display:block;margin-left:auto;margin-right:auto;max-height:600px;"/> </div>',
+              controller: 'ModalInstanceCtrl',
+              size: 'lg',
+          });
+     };
+
+      if ($scope.clicked === true) return;
+      console.log('QuizCtrl called');
+      $scope.currentIndex = 0;
+      $scope.quiz = $rootScope.currentQuiz;
+      console.log($scope.quiz, $rootScope.currentQuiz);
+      $scope.start = false;
+      $scope.url = '@@nodeserver@@:@@nodeport@@/resources/images/';
+      $scope.answer = 0;
+      $scope.correct = false;
+      $scope.time = null;
+      $scope.save = null;
+      $scope.retake = null;
+      $scope.numQuestions = null;
+      $scope.hash = null;
+      $scope.questions = null;
+      $scope.result = {};
+      $scope.clicked = true;
+      $scope.list = true;
+      getQuestions($scope.quiz);
+ 
+
+    }]);
+

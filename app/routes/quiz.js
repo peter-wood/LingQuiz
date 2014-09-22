@@ -2,9 +2,11 @@ var express = require('express');
 var fs = require('fs');
 var auth = require('../lib/auth.js');
 var config = require('../lib/config.js');
+var quizdb = require('../lib/quizdb.js');
 var router = express.Router();
 var currentRes = null;
 var result = null;
+
 
 router.get('/', function(req, res) {
     console.log('quizzes GET accessed');
@@ -14,38 +16,27 @@ router.get('/', function(req, res) {
     auth.printAuth();
     if (!auth.hasPermission(key)) {
 	console.log('not authorized');
-        result = {'result': -1};
-        sendResult();
+        result = -1;
+        sendQuestion(result);
     } else {
       console.log('authorized :-)');
-      sendList();
+      getQuestion();
     }
 });
 
-
-var sendResult = function() {
-  if (currentRes==null) {
-    console.log('respponse already send');
-    return;
-  }
+var sendQuestion = function(data) {
+  result = {'result': data};
   console.log('sending result: %s', JSON.stringify(result));
   currentRes.jsonp(result);
   currentRes = null;
 }
 
-
-var sendList = function() {
+var getQuestion = function() {
   if (currentRes==null) {
     console.log('respponse already send');
     return;
   }
-  myList = [];
-  for (var x in config.quizzes) {
-      if (config.quizzes[x]['open'] === true) {
-          myList.push(config.quizzes[x]['quiz']);
-      }
-  }
-  result = {'result': myList};
-  sendResult();
+  quizdb.getQuestion(sendQuestion);
 }
+
 module.exports = router;

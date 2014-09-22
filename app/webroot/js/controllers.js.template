@@ -60,37 +60,5 @@ angular.module('myApp.controllers', [])
       var fileType = '.pdf';
       myFac.init(subdir, request, fileType, $scope);
       $scope.clicked = true;
-  }])
-  .controller('ModalInstanceCtrl', ['$scope', '$modalInstance',  function ($scope, $modalInstance) {
-      $scope.ok = function () {
-        $modalInstance.close();
-      };
-
-      $scope.cancel = function () {
-        $modalInstance.dismiss();
-      };
-   }])
-  .controller('QuizzesCtrl', ['$scope', 'myFac', '$modal', function($scope, myFac, $modal) {
-      if ($scope.clicked === true) return;
-      console.log('QuizzesCtrl called');
-      var subdir = 'quizzes/';
-      var request = 'quizzes_res';
-      var fileType = 'na';
-      myFac.init(subdir, request, fileType, $scope);
-      $scope.clicked = true;
-      $scope.answer = 0;
-      $scope.url = '@@nodeserver@@:@@nodeport@@/resources/images/';
-      $scope.image = 'head.png';
-      $scope.submission = function(sub) {
-      	$scope.answer = sub;
-      };
-      $scope.open = function (size) {
-          var modalInstance = $modal.open({
-              template:  '<div class="modal-header"> <h3 class="modal-title">Click outside the image to close</h3> </div> <div class="modal-body"><img ng-src="'+$scope.url+$scope.result.resource+'" class="img-responsive" style="display:block;margin-left:auto;margin-right:auto;max-height:600px;"/> </div>',
-              controller: 'ModalInstanceCtrl',
-              size: 'lg',
-          });
-     };
-
   }]);
 

@@ -79,6 +79,7 @@
       </footer>
   <script src="/@@webdir@@/js/app.js"></script>
   <script src="/@@webdir@@/js/controllers.js"></script>
+  <script src="/@@webdir@@/js/quizstuff.js"></script>
   <script src="/@@webdir@@/js/filters.js"></script>
   <script src="/@@webdir@@/js/directives.js"></script>
   <script src="/@@webdir@@/js/factories.js"></script>

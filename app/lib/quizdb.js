@@ -1,72 +1,82 @@
 var config = require('./config.js');
 
 mongoose.set('debug', true);
-var questionSchema = mongoose.Schema( {
-	question: String,
-    text: String,
-    resource: String,
-    opt1: String,
-    opt2: String,
-    opt3: String,
-    opt4: String,
-    opt5: String,
-    correct: Number,
-    id: Number},
-    { collection: config.currentQuestionSet } );
 
-var question = mongoose.model(config.currentQuestionSet, questionSchema);
+var setSchema = function(collection) {
+    return mongoose.Schema( {
+        question: String,
+        text: String,
+        resource: String,
+        opt1: String,
+        opt2: String,
+        opt3: String,
+        opt4: String,
+        opt5: String,
+        correct: Number,
+        id: Number},
+        { 'collection': collection } );
+}
+var modelcache = {}
 
-var questionCache = [];
+var setModel = function(collection) {
+    console.log('looking for model: %s', collection);
+    if (modelcache.hasOwnProperty(collection)) {
+        console.log('found');
+        return modelcache[collection];
+    } else {
+        console.log('not found');
+        var c = mongoose.model(collection, setSchema(collection));
+        modelcache[collection] = c;
+        return c;
+    }
+}
 
-var getQuestions = function(cb) {
-	question.find()
+var getLength = function(collection, cb) {
+    var question = setModel(collection);
+	question.count({}, cb);
+}
+
+var checkAnswer = function(collection, id, answer, cb) {
+    var question = setModel(collection);
+    question.findOne({'id': id}, function(err, q) {
+        if (err) {
+            console.log('checkAnswer ran into a problem');
+            cb(0, -1);
+        } else {
+            console.log('checkAnswer got: ', q);
+            var result;
+            if (q.correct === answer) { 
+                result = true;
+            } else {
+                result = false;
+            }
+            console.log('returning: ',result);
+            cb(0, result);
+        }
+    }); 
+}
+    
+
+
+var getQuestion = function(collection, number, cb) {
+    var question = setModel(collection);
+	question.find({id: number})
 	.select('question text resource opt1 opt2 opt3 opt4 opt5 correct id')
 	.exec(function(err, questions) {
-		if (err) return console.error(err);
+		if (err) cb(err, -1);
 		if (questions.length === 0) {
 			console.error('no matching questions found');
-			return false;
+			cb (-1, -1);
 		}
-		for (var i = 0; i < questions.length; ++i) {
-            var temp = {};
-			temp.question = questions[i].question;
-			temp.text = questions[i].text;
-			temp.resource = questions[i].resource;
-			temp.opt1 = questions[i].opt1;
-			temp.opt2 = questions[i].opt2;
-			temp.opt3 = questions[i].opt3;
-			temp.opt4 = questions[i].opt4;
-			temp.opt5 = questions[i].opt5;
-			temp.correct = questions[i].correct;
-			temp.id = questions[i].id;
-			questionCache.push(temp);
-		}
-	cb();
+        cb(0, questions[0]);
 	});
 }
 
-var questioncb = null;
-
-var getOneQuestion = function(cb) {
-	questioncb = cb
-	if (questionCache.length === 0) {
-		getQuestions(retQuestion);
-	} 
-	else retQuestion();
-}
-
-var retQuestion = function() {
-	var max = questionCache.length;
-	var resultId = Math.floor(Math.random()*(max));
-	var result =  questionCache[resultId];
-	questionCache.splice(resultId, 1);
-    console.log('returning max %d resultId %d', max, resultId);
-    console.log('cache has %d questions', questionCache.length);
-	questioncb(result);
-}
 
 var quizdb = {};
-quizdb.getQuestion = getOneQuestion;
+quizdb.getQuestion = getQuestion;
+quizdb.getCount = getLength;
+quizdb.checkAnswer = checkAnswer;
 
 module.exports = quizdb;
 

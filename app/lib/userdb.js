@@ -1,11 +1,39 @@
 var crypto = require('crypto');
 var config = require('./config');
+var recordSchema = mongoose.Schema( {
+    coll: String,
+    question: Number,
+    correct: Number,
+    answer: Number,
+    time: { type: Date, default: Date.now},
+    setHash: Number});
+
+var addQuestion = function(userName, collection, id, correct, answer, date, hash, callback) {
+    user.findOne({nsid: userName}, function(err, u) {
+        if (err) {
+            console.log('Could not find user to add to');
+            cb (err, -1);
+        } else {
+            u.quizzes.push( {'coll': collection,
+                'question': id,
+                'correct': correct,
+                'answer': answer,
+                'time': date,
+                'setHash': hash});
+            u.save(function(err) {
+                callback(err, id);});
+        }
+    });
+}
+
+
+
 
 var userSchema = mongoose.Schema( {
     name: String,
     nsid: String,
     snum: Number,
-    quizzes: Object,
+    quizzes: [recordSchema],
     reserved: Object});
 
 userSchema.methods.success = function() {
@@ -110,6 +138,7 @@ userdb.init = init;
 userdb.printAll = printAll;
 userdb.deleteAll = deleteAll;
 userdb.haveUser = haveUser;
+userdb.addQuestion = addQuestion;
 
 module.exports = userdb;
 

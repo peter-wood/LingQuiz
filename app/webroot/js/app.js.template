@@ -8,6 +8,7 @@ angular.module('myApp', [
   'myApp.filters',
   'myApp.directives',
   'myApp.factories',
+  'myApp.quizstuff',
   'myApp.controllers'
 ])
 
@@ -43,6 +44,11 @@ angular.module('myApp', [
       url: "/@@webdir@@/quizzes",
       templateUrl: "/@@webdir@@/partials/quizzes.html",
       controller: "QuizzesCtrl"
+    })
+     .state("quiz", {
+      url: "/@@webdir@@/quiz/",
+      templateUrl: "/@@webdir@@/partials/quiz.html",
+      controller: "QuizCtrl"
     })
     .state("wiki", {
       url: "/@@webdir@@/wiki",
