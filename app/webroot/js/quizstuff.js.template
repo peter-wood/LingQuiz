@@ -49,6 +49,10 @@ angular.module('myApp.quizstuff', [])
                       $scope.questions = QuizRecord.questions;
                       $scope.time = new Date(QuizRecord.time * 1000 * 60);
                       $scope.save = QuizRecord.save;
+                      if ($scope.save) {
+                          $scope.warning = true;
+                          $scope.correctMessage = "Answered";
+                      }
                       $scope.retake = QuizRecord.retake;
                       $scope.numQuestions = QuizRecord.numQuestions;
                       $scope.hash = QuizRecord.hash;
@@ -93,6 +97,7 @@ angular.module('myApp.quizstuff', [])
             data.id = $scope.questions[$scope.currentIndex]['id'];
             data.answer = $scope.questions[$scope.currentIndex]["answer"];
             data.hash = $scope.hash;
+            data.save = $scope.save;
             console.log('calling update: ', data);
 
             $http.jsonp('@@nodeserver@@:@@nodeport@@/update?data=' 
@@ -120,12 +125,14 @@ angular.module('myApp.quizstuff', [])
                       console.log('got data: %s', JSON.stringify(checkRes));
                       $scope.questions[$scope.currentIndex]["correct"] = checkRes.result;
                       $scope.gotRight = 0;
+                      $scope.answered = 0; 
                       for (var x = 0; x < $scope.numQuestions; ++x) {
                           if ($scope.questions[x]['correct']) ++ $scope.gotRight;
+                          if ($scope.questions[x]['answer'] > 0) ++$scope.answered;
                       }
                       if ($scope.gotRight === $scope.numQuestions) {
                           $scope.alerts.push({'msg': 'Well done. You answered all the questions. You can leave this page now.', 'type': 'success'});
-                          $scope.stop();
+                          $scope.stop('complete');
                       }
                   }
               });
@@ -134,17 +141,25 @@ angular.module('myApp.quizstuff', [])
       var promise = undefined;
 
       $scope.startQuiz = function() {
+          $scope.warning = false;
 	      promise = $interval( function() {
 		      $scope.time = $scope.time - 1000;
 		      if ($scope.time <= 0) {
-			      $scope.alerts.push({'msg': 'The time is up.', 'type': 'danger'});
-			      $scope.stop();
+                  var msg = null;
+                  if ($scope.save) {
+                      msg = 'The time is up. All your answers have been saved.';
+                  } else {
+                      msg = 'The time is up. Navigate back to "Quizzes" and try again.';
+                  }
+			      $scope.alerts.push({'msg': msg, 'type': 'danger'});
+			      $scope.stop('timeOut');
 		      }
 	      }, 1000);
 	      $scope.nextQuestion('0');
       }
 
-      $scope.stop = function() {
+      $scope.stop = function(reason) {
+          if (reason === 'submit') $scope.alerts.push({'msg': 'Thank you for your submission. The results will be available in a few days.', 'type': 'danger'});
 	      if (promise != undefined) {
 		      $interval.cancel(promise);
       		      promise = undefined;
@@ -155,13 +170,12 @@ angular.module('myApp.quizstuff', [])
 
 
       $scope.$on('$destroy', function () {
-          $scope.stop}
-      );
+          $scope.stop('destroyed');
+      });
 
       $scope.submission = function(sub) {
         if ($scope.disabled) return; // no more input once timer is stopped
         $scope.questions[$scope.currentIndex]['answer'] = sub;
-        var myid = 'b' + sub.toString();
         var cs = 'list-group-item ng-binding ng-scope';
         var cn = 'list-group-item ng-binding ng-scope list-group-item-info';
         for(var x = 1; x < 6; ++ x) {
@@ -191,9 +205,12 @@ angular.module('myApp.quizstuff', [])
       $scope.next = true;
       $scope.back = false;
       $scope.gotRight = 0;
+      $scope.answered = 0;
       $scope.url = '@@nodeserver@@:@@nodeport@@/resources/images/';
       $scope.time = null;
       $scope.save = null;
+      $scope.record = null;
+      $scope.correctMessage = 'Correct';
       $scope.retake = null;
       $scope.numQuestions = null;
       $scope.hash = null;

@@ -5,7 +5,8 @@
 		<div class='panel-heading' ng-hide="start">
 			<h5 class='panel-title'>
 				<b>Question {{currentIndex + 1}}/{{numQuestions}}: </b>	{{questions[currentIndex]['question']}}
-				<span class="pull-right">Correct: {{gotRight}}/{{numQuestions}}</span>
+                <span ng-if='!save' class="pull-right">{{correctMessage}}: {{gotRight}}/{{numQuestions}}</span>
+                <span ng-if='save' class="pull-right">{{correctMessage}}: {{answered}}/{{numQuestions}}</span>
 			</h5>
 		</div>
 		<div class='panel-body row'>
@@ -26,13 +27,20 @@
 			<div class='row col-md-12'>
 				<button ng-if = 'start' type='button' class='btn btn-success' ng-click="startQuiz()">Start</button>
 				<button ng-if = '!start && back' type='button' class='btn btn-primary' ng-click="nextQuestion('-')">Back</button>
-				<button ng-if = '!start && questions[currentIndex]["answer"] === 0' type='button' class='btn btn-warning'><span class='glyphicon glyphicon-unchecked'></span></button>
-				<button ng-if = '!start && !questions[currentIndex]["correct"] && questions[currentIndex]["answer"] > 0' type='button' class='btn btn-danger'><span class='glyphicon glyphicon-remove'></span></button>
-				<button ng-if = '!start && questions[currentIndex]["correct"]' type='button' class='btn btn-success'><span class='glyphicon glyphicon-ok'></span></button>
+				<button ng-if = '!save &&!start && questions[currentIndex]["answer"] === 0' type='button' class='btn btn-warning'><span class='glyphicon glyphicon-unchecked'></span></button>
+				<button ng-if = '!save &&!start && !questions[currentIndex]["correct"] && questions[currentIndex]["answer"] > 0' type='button' class='btn btn-danger'><span class='glyphicon glyphicon-remove'></span></button>
+				<button ng-if = '!save &&!start && questions[currentIndex]["correct"]' type='button' class='btn btn-success'><span class='glyphicon glyphicon-ok'></span></button>
 				<button ng-if = '!start && next' type='button' class='btn btn-primary' ng-click="nextQuestion('+')">Next Question</button>
+				<button ng-if = '!disabled && !start && save' type='button' class='btn btn-warning' ng-click="stop('submit')">Submit</button>
 		       </div>
 		</div>
 	</div>
+    <div ng-show='warning'>
+        <h3>Once you click 'Start', all your answers will be recorded. You will
+            not be able to stop the timer, and you cannot retake this quiz.
+            Make sure that you answer all questions, before you submit your
+            answers.</h3>
+    </div>
     <div ng-hide='valid'>
         <h3>You are not logged in, or your session has expired. Please log
             in.</h3>

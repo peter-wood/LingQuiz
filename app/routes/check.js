@@ -30,7 +30,11 @@ router.get('/', function(req, res) {
       collection = data.quiz;
       id = data.id;
       answer = data.answer;
-      quizdb.checkAnswer(collection, id, answer, send);
+      if (data.save = true) {
+          send(0, false);
+      } else {
+          quizdb.checkAnswer(collection, id, answer, send);
+      }
     }
 });
 

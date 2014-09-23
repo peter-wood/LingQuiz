@@ -10,8 +10,8 @@ config.currentQuestionSet = 'practice';
 config.loginValidFor = 45; // in minutes
 config.purgeInterval = 30; // in seconds
 config.quizzes = [
-    { 'quiz': 'Practice-1', 'open': true, time: 15, numQuestions: 10, save:false, retake: true },
-    { 'quiz': 'Quiz-1', 'open': false, time: 50, numQuestions: 30, save: true, retake: false }
+    { 'quiz': 'Practice-1', 'open': true, time: 15, numQuestions: 10, save:false, retake: true, review: false },
+    { 'quiz': 'Quiz-1', 'open': true, time: 5, numQuestions: 10, save: true, retake: false, review: false }
 ];
 // @@webroot@@=/srv/http
 // @@webdir@@=ling111
