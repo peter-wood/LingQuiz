@@ -1,6 +1,6 @@
 var config = require('./config.js');
 
-mongoose.set('debug', true);
+// mongoose.set('debug', true);
 
 var setSchema = function(collection) {
     return mongoose.Schema( {
@@ -19,9 +19,9 @@ var setSchema = function(collection) {
 var modelcache = {}
 
 var setModel = function(collection) {
-    console.log('looking for model: %s', collection);
+    //console.log('looking for model: %s', collection);
     if (modelcache.hasOwnProperty(collection)) {
-        console.log('found');
+        //console.log('found');
         return modelcache[collection];
     } else {
         console.log('not found');
@@ -38,13 +38,12 @@ var getLength = function(collection, cb) {
 
 var checkAnswer = function(collection, id, answer, cb) {
     var question = setModel(collection);
-    console.log('userdb.checkAnswer got: ', collection, id, answer, cb);
     question.findOne({'id': id}, function(err, q) {
         if (err) {
             console.log('checkAnswer ran into a problem');
             cb(0, -1);
         } else {
-            console.log('checkAnswer got: ', q);
+            //console.log('checkAnswer got: ', q);
             var result;
             if (q.correct === answer) { 
                 result = true;

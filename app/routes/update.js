@@ -5,15 +5,12 @@ var config = require('../lib/config.js');
 var quizdb = require('../lib/quizdb.js');
 var userdb = require('../lib/userdb.js');
 var router = express.Router();
-var result = {};
 var currentRes = null;
-var collection = null;
 var id = null;
-var answer = null;
-
+var user  = null;
 
 router.get('/', function(req, res) {
-    console.log('check GET accessed');
+    console.log('update GET accessed');
     currentRes = res;
     var key = req.cookies['myLingKey'];
     console.log('key: ' + key);
@@ -21,29 +18,30 @@ router.get('/', function(req, res) {
     var authdata = auth.hasPermission(key);
     if (!authdata) {
 	console.log('not authorized');
-        result = -1;
-        send(0, result);
+        send(-1, 'error authorizing');
     } else {
       console.log('authorized :-)');
       var data =JSON.parse(req.query.data);
-      console.log('check got: ', data);
-      collection = data.quiz;
+      user = authdata.user;
+      var collection = data.quiz;
       id = data.id;
-      answer = data.answer;
-      quizdb.checkAnswer(collection, id, answer, send);
+      var hash = data.hash;
+      var answer = data.answer;
+      console.log('update params', user, collection, id, hash, answer);
+      userdb.modQuestion(user, collection, id, hash, answer, send);
     }
 });
 
-var send = function(err, result) {
+var send = function(err, res) {
     if (currentRes === null) {
-        console.log('resutlt already sent');
+        console.log('already send result');
         return;
     }
-    var data = {};
-    data.result = result;
-    console.log('sending result: %s', JSON.stringify(data));
-    currentRes.jsonp(data);
-    currentRes = null;
+    userdb.dumpData(user, function() {
+        console.log ('*********************** send called with', err, res);
+        currentRes.jsonp({'data': res});
+        currentRes = null;
+    });
 }
 
 module.exports = router;

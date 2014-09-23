@@ -46,11 +46,11 @@ angular.module('myApp', [
       controller: "QuizzesCtrl"
     })
      .state("quiz", {
-      url: "/@@webdir@@/quiz/",
+      url: "/@@webdir@@/quiz",
       templateUrl: "/@@webdir@@/partials/quiz.html",
       controller: "QuizCtrl"
     })
-    .state("wiki", {
+     .state("wiki", {
       url: "/@@webdir@@/wiki",
       templateUrl: "/@@webdir@@/partials/wiki.html"
     })

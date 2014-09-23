@@ -58,23 +58,32 @@ angular.module('myApp.quizstuff', [])
 
       
       $scope.nextQuestion = function(direction) {
-	  console.log('nextQuestion called with: ', direction);
-	  console.log('question: ', $scope.questions[$scope.currentIndex]);
-	  $scope.start = false;
-	  $scope.next = true;
-	  $scope.back = true;
+          console.log('nextQuestion called with: ', direction);
+          $scope.start = false;
+          $scope.next = true;
+          $scope.back = true;
           if (direction === '+') ++$scope.currentIndex;
-	  if (direction === '-') --$scope.currentIndex;
-	  if ($scope.currentIndex === ($scope.questions.length - 1)) {
-		  $scope.next = false;
-	  }
-	  if ($scope.currentIndex <= 0) {
-		  $scope.currentIndex = 0;
-		  $scope.back = false;
-	  }
-     }
+          if (direction === '-') --$scope.currentIndex;
+          if ($scope.currentIndex === ($scope.questions.length - 1)) {
+              $scope.next = false;
+          }
+          if ($scope.currentIndex <= 0) {
+              $scope.currentIndex = 0;
+              $scope.back = false;
+          }
+          console.log('question: ', $scope.questions[$scope.currentIndex]);
+          var cs = 'list-group-item ng-binding ng-scope';
+          var cn = 'list-group-item ng-binding ng-scope list-group-item-info';
+          for(var x = 1; x < 6; ++x) {
+              if ($scope.questions[$scope.currentIndex]['answer'] === x) {
+                    document.getElementById('b' + x.toString()).className = cn;
+              } else {
+                    document.getElementById('b' + x.toString()).className = cs;
+              }
+          }
+      }
 
-      $scope.closeAlert = function() {
+      $scope.closeAlert = function(index) {
 	      $scope.alerts.splice(index,1);
       }
 
@@ -83,6 +92,22 @@ angular.module('myApp.quizstuff', [])
             data.quiz = $scope.quiz;
             data.id = $scope.questions[$scope.currentIndex]['id'];
             data.answer = $scope.questions[$scope.currentIndex]["answer"];
+            data.hash = $scope.hash;
+            console.log('calling update: ', data);
+
+            $http.jsonp('@@nodeserver@@:@@nodeport@@/update?data=' 
+            + encodeURIComponent(JSON.stringify(data)) 
+            +'&callback=JSON_CALLBACK')
+              .success(function(upRes) {
+                  if(upRes.data != 1) {
+                      console.log('something went wrong updating answers');
+                      return;
+                  }
+                  else { 
+                      console.log('answer updated');
+                  }
+            });
+             
 
             $http.jsonp('@@nodeserver@@:@@nodeport@@/check?data=' 
             + encodeURIComponent(JSON.stringify(data)) 
@@ -94,22 +119,23 @@ angular.module('myApp.quizstuff', [])
                   } else {
                       console.log('got data: %s', JSON.stringify(checkRes));
                       $scope.questions[$scope.currentIndex]["correct"] = checkRes.result;
-		      $scope.gotRight = 0;
-		      for (var x = 0; x < $scope.numQuestions; ++x) {
-			      if ($scope.questions[x]['correct']) ++ $scope.gotRight;
-		      }
-		      if ($scope.gotRight === $scope.numQuestions) {
-			      $scope.alerts.push({'msg': 'Well done. You answered all the questions. You can leave this page now.', 'type': 'success'});
-			      $scope.stop();
-		      }
+                      $scope.gotRight = 0;
+                      for (var x = 0; x < $scope.numQuestions; ++x) {
+                          if ($scope.questions[x]['correct']) ++ $scope.gotRight;
+                      }
+                      if ($scope.gotRight === $scope.numQuestions) {
+                          $scope.alerts.push({'msg': 'Well done. You answered all the questions. You can leave this page now.', 'type': 'success'});
+                          $scope.stop();
+                      }
                   }
               });
       }
+
       var promise = undefined;
+
       $scope.startQuiz = function() {
 	      promise = $interval( function() {
 		      $scope.time = $scope.time - 1000;
-		      console.log('Time: ', $scope.time);
 		      if ($scope.time <= 0) {
 			      $scope.alerts.push({'msg': 'The time is up.', 'type': 'danger'});
 			      $scope.stop();
@@ -125,13 +151,16 @@ angular.module('myApp.quizstuff', [])
 		      $scope.disabled = true;
 	      }
       }
+      
 
-      $scope.$on('$destroy', $scope.stop);
 
+      $scope.$on('$destroy', function () {
+          $scope.stop}
+      );
 
       $scope.submission = function(sub) {
-	if ($scope.disabled) return; // no more input once timer is stopped
-	$scope.questions[$scope.currentIndex]['answer'] = sub;
+        if ($scope.disabled) return; // no more input once timer is stopped
+        $scope.questions[$scope.currentIndex]['answer'] = sub;
         var myid = 'b' + sub.toString();
         var cs = 'list-group-item ng-binding ng-scope';
         var cn = 'list-group-item ng-binding ng-scope list-group-item-info';

@@ -55,7 +55,7 @@ var randset = function(min, max, n) {
         var index = Math.floor(Math.random() * set.length);
         mySet.push(set.splice(index,1)[0]);
     }
-    console.log('randset, min: %d, max: %d, n: %d, set: %s', min, max, n, mySet);
+    //console.log('randset, min: %d, max: %d, n: %d, set: %s', min, max, n, mySet);
     return mySet;
 }
 
@@ -66,7 +66,7 @@ var sendQuestions = function(err, data) {
         console.log('resutlt already sent');
         return;
     }
-    console.log('sending result: %s', JSON.stringify(data));
+    // console.log('sending result: %s', JSON.stringify(data));
     currentRes.jsonp(data);
     currentRes = null;
 }
@@ -77,10 +77,10 @@ var reduceCounter = function(err, questionid) {
         console.log('Could not store question');
         return;
     }
-    console.log('in reduceCounter: %s', set);
+    // console.log('in reduceCounter: %s', set);
     set.splice(set.indexOf(questionid), 1);
     if (set.length > 0) {
-        console.log('reduceCounter after splice: %s', set, set.length);
+        // console.log('reduceCounter after splice: %s', set, set.length);
         getQuestion();
     } else {
         sendQuestions(0, result);
@@ -101,10 +101,10 @@ var storeQuestion = function(question) {
      q.resource = question.resource;
      q.correct = false;
      q.answer = 0;
-     console.log('in store question: ', q);
+     // console.log('in store question: ', q);
      var correct = question.correct;
      result.questions.push(q);
-     console.log('in store question now: ', q);
+     // console.log('in store question now: ', q);
      userdb.addQuestion(
                 user,
                 collection,
@@ -117,7 +117,7 @@ var storeQuestion = function(question) {
 }
 
 var getQuestion = function() {
-    console.log('in getQuestion', set, set[0]);
+    // console.log('in getQuestion', set, set[0]);
     var number = set[0];
     quizdb.getQuestion(collection, number, function(err,question) {
         if (err) {

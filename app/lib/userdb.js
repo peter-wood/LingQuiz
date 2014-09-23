@@ -1,5 +1,6 @@
 var crypto = require('crypto');
 var config = require('./config');
+// mongoose.set('debug', true);
 
 var addQuestion = function(userName, collection, id, correct, answer, date, hash, callback) {
     user.findOne({nsid: userName}, function(err, u) {
@@ -17,6 +18,25 @@ var addQuestion = function(userName, collection, id, correct, answer, date, hash
                 callback(err, id);});
         }
     });
+}
+
+var modQuestion = function(userName, collection, id, hash, answer, cb) {
+    console.log('-----------------mod Question called with: ', userName, collection, id, hash, answer);
+    user.update(
+            { 'nsid': userName,
+                quizzes:  { $elemMatch: {
+                    'coll': collection,
+                    'question': id,
+                    'setHash': hash}
+                }
+            },
+            { $set: { 'quizzes.$.answer': answer }},
+            cb
+    );
+    //u.save(function(err) {
+    //    console.log('Error updating answers', err);
+    //    cb(err, id);
+    //});
 }
 
 var recordSchema = mongoose.Schema( {
@@ -116,6 +136,40 @@ var checkPass = function(err, u) {
     currentCallback (result);
 }
 
+var mycb = null;
+
+var dump = function(err, u) {
+    attempts = [];
+    for (var x = 0; x < u.quizzes.length; ++x) {
+        attempts.push(u.quizzes[x]['setHash']);
+    }
+    attempts.sort();
+    last = attempts.pop();
+    console.log('dump last entry: ', last);
+    questions = {};
+    for (var x = 0; x < u.quizzes.length; ++x) {
+        if (u.quizzes[x]['setHash'] === last) {
+            questions[u.quizzes[x]['question'].toString()] = u.quizzes[x];
+            //console.log(questions);
+        }
+    }
+    var total = 0;
+    Object.keys(questions).forEach(function(x) {
+        console.log('question: %d, correct: %d, answer: %d', questions[x]['question'], questions[x]['correct'], questions[x]['answer']);
+        if (questions[x]['correct'] === questions[x]['answer']) { ++total; }
+    });
+    console.log('Total: %s', total);
+
+    mycb();
+}
+
+var dumpData = function(nsid, cb) {
+    mycb = cb;
+    var query = user.findOne({'nsid': nsid});
+    query.select('quizzes');
+    query.exec(dump);
+}
+
 var haveUser = function(nsid, pass, cb) {
     currentCallback = cb;
     currentPass = pass;
@@ -134,6 +188,8 @@ userdb.printAll = printAll;
 userdb.deleteAll = deleteAll;
 userdb.haveUser = haveUser;
 userdb.addQuestion = addQuestion;
+userdb.modQuestion = modQuestion;
+userdb.dumpData = dumpData;
 
 module.exports = userdb;
 
