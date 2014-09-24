@@ -20,8 +20,32 @@ var addQuestion = function(userName, collection, id, correct, answer, date, hash
     });
 }
 
+var getCurrentQuiz = function(userName, callback) {
+    user.findOne({nsid: UserName} , function(err, u) {
+        if(err || !u) {
+            console.log('could not retrieve users current quiz');
+            cb (err, null);
+        } else {
+            result = {};
+            result.currentQuiz = u.currentQuiz;
+            result.currentHash = u.currentHash;
+            result.currentExpire = u.currentExpire;
+            cb(0, result);
+        }
+    });
+}
+
+var setCurrentQuiz = function(userName, cQuiz, cHash, cExpire, cb) {
+    usser.update( 
+            { 'nsid': userName },
+            { $set: { 'currentQuiz': cQuiz,
+                      'currentHash': cHash,
+                      'currentExpire': cExpire }},
+              cb
+    );
+}
+
 var modQuestion = function(userName, collection, id, hash, answer, cb) {
-    console.log('-----------------mod Question called with: ', userName, collection, id, hash, answer);
     user.update(
             { 'nsid': userName,
                 quizzes:  { $elemMatch: {
@@ -30,7 +54,8 @@ var modQuestion = function(userName, collection, id, hash, answer, cb) {
                     'setHash': hash}
                 }
             },
-            { $set: { 'quizzes.$.answer': answer }},
+            { $set: { 'quizzes.$.answer': answer, 
+                      'quizzes.$.time': Date.now }},
             cb
     );
     //u.save(function(err) {
@@ -52,7 +77,12 @@ var userSchema = mongoose.Schema( {
     nsid: String,
     snum: Number,
     quizzes: [recordSchema],
-    reserved: Object});
+    reserved: Object,
+    currentQuiz: { type: String, default: 'none' },
+    currentHash: { type: Number, default: 0 },
+    currentExpire: { type: Date, default: new Date(0) }
+
+});
 
 userSchema.methods.success = function() {
         console.log( 'saved record for ' + this.nsid);
@@ -155,7 +185,9 @@ var dump = function(err, u) {
     }
     var total = 0;
     Object.keys(questions).forEach(function(x) {
-        console.log('question: %d, correct: %d, answer: %d', questions[x]['question'], questions[x]['correct'], questions[x]['answer']);
+        console.log('question: %d, correct: %d, answer: %d, time: %s',
+                questions[x]['question'], questions[x]['correct'], 
+                questions[x]['answer'], questions[x]['time'].toString());
         if (questions[x]['correct'] === questions[x]['answer']) { ++total; }
     });
     console.log('Total: %s', total);
@@ -190,6 +222,8 @@ userdb.haveUser = haveUser;
 userdb.addQuestion = addQuestion;
 userdb.modQuestion = modQuestion;
 userdb.dumpData = dumpData;
+userdb.getCurrentQuiz = getCurrentQuiz,
+userdb.setCurrentQuiz = setCurrentQuiz,
 
 module.exports = userdb;
 
