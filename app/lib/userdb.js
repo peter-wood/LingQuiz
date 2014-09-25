@@ -1,6 +1,6 @@
 var crypto = require('crypto');
 var config = require('./config');
-//mongoose.set('debug', true);
+mongoose.set('debug', true);
 //
 var counter = 0;
 
