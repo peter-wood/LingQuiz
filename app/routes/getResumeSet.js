@@ -52,7 +52,6 @@ var getData = function() {
       result.numQuestions = config.quizzes[index].numQuestions;
       result.retake = config.quizzes[index].retake;
       result.save = config.quizzes[index].save;
-      result.hash = Date.parse(Date());
 }
 
 var send = function(err, data) {
@@ -61,24 +60,24 @@ var send = function(err, data) {
         return;
     }
     for (var x = 0; x < answers.length; ++x) {
-	    result.questions[x] = answers[x];
+	    result.questions[x]['answer'] = answers[x];
     }
     getData();
     currentRes.jsonp(result);
     currentRes = null;
 }
 
-var storeQuestion = function() {
+var storeQuestion = function(question) {
      var q = {};
-     q.question = question.question;
-     q.text = question.text;
-     q.opt1 = question.opt1;
-     q.opt2 = question.opt2;
-     q.opt3 = question.opt3;
-     q.opt4 = question.opt4;
-     q.opt5 = question.opt5;
-     q.id = question.id;
-     q.resource = question.resource;
+     q.question = question['question'];
+     q.text = question['text'];
+     q.opt1 = question['opt1'];
+     q.opt2 = question['opt2'];
+     q.opt3 = question['opt3'];
+     q.opt4 = question['opt4'];
+     q.opt5 = question['opt5'];
+     q.id = question['id'];
+     q.resource = question['resource'];
      q.correct = false;
      q.answer = 0;
      result.questions.push(q);
@@ -97,22 +96,34 @@ var getQuestion = function() {
 			console.log('could not get resume question');
 			return;
 		} else {
+            console.log('got question: ', question);
 			storeQuestion(question);
 		}
 	});
 }
 
-var init = function(err, data) {
+var init = function(err, t, stuff) {
+    console.log('this is init in ResumeSet');
     if (currentRes===null) { 
 	    console.log('result already sent');
 	    return;
     } else {
-	    result.count = data.length;
-	    for (var x = 0; x < data.len; ++ x) {
-		    answers.push(data[x]['answer']);
-		    set.push(data[x]['question']);
-		    result.collection = data[x]['coll'];
+        //console.log('getResumeSet init got: ',err, t, stuff);
+        //console.log('t', t.length);
+        set = [];
+        answers = [];
+        var count = 0;
+        var f = function(obj) {
+            count++;
+            console.log('*************** adding question to resume: ', count);
+            console.log('ok ', obj);
+		    answers.push(obj['answer']);
+		    set.push(obj['question']);
+		    result.collection = obj['coll'];
+            result.hash = obj['setHash'];
 	    }
+        stuff.map(f);
+        console.log('init before calling getQuestion: answers, set, coll: ', answers, set, result.collection);
 	    getQuestion();
     }
 }

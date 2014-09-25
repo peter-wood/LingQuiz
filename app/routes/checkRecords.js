@@ -34,6 +34,7 @@ var send = function(err, data) {
         console.log('resutlt already sent');
         return;
     }
+    console.log('checkRecords sending: ', data);
     currentRes.jsonp(data);
     currentRes = null;
 }

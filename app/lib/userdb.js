@@ -1,8 +1,11 @@
 var crypto = require('crypto');
 var config = require('./config');
-mongoose.set('debug', true);
+//mongoose.set('debug', true);
+//
+var counter = 0;
 
 var addQuestion = function(userName, collection, id, correct, answer, date, hash, callback) {
+    console.log('----------------------- add question called , counter = ', counter);
     user.findOne({nsid: userName}, function(err, u) {
         if (err) {
             console.log('Could not find user to add to');
@@ -196,7 +199,7 @@ var gcscb = null;
 
 var filterSet = function(err, u) {
 
-    console.log('filter set got userdata: ', err, u);
+    // console.log('filter set got userdata: ', err, u);
     console.log(u.quizzes[0]);
     mySet = [];
     for (var x = 0; x < u.quizzes.length; ++x) {
@@ -205,12 +208,13 @@ var filterSet = function(err, u) {
 		myObj.coll = u.quizzes[x]['coll'];
 		myObj.question = u.quizzes[x]['question'];
 		myObj.answer = u.quizzes[x]['answer'];
+        myObj.setHash = u.quizzes[x]['setHash'];
 		mySet.push(myObj);
 	}
     }
-    console.log ('sending: ', mySet);
+    console.log ('sending set of length: ', mySet.length);
     console.log ('curHash: ', curHash);
-    gcscb(mySet);
+    gcscb(0, 'test', mySet);
 }
 
 var getCurrentSet = function(nsid, hash, cb) {
