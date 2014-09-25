@@ -55,7 +55,7 @@ var randset = function(min, max, n) {
         var index = Math.floor(Math.random() * set.length);
         mySet.push(set.splice(index,1)[0]);
     }
-    //console.log('randset, min: %d, max: %d, n: %d, set: %s', min, max, n, mySet);
+    console.log('randset, min: %d, max: %d, n: %d, set: %s', min, max, n, mySet);
     return mySet;
 }
 

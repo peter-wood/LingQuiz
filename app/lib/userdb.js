@@ -1,6 +1,6 @@
 var crypto = require('crypto');
 var config = require('./config');
-// mongoose.set('debug', true);
+mongoose.set('debug', true);
 
 var addQuestion = function(userName, collection, id, correct, answer, date, hash, callback) {
     user.findOne({nsid: userName}, function(err, u) {
@@ -21,7 +21,7 @@ var addQuestion = function(userName, collection, id, correct, answer, date, hash
 }
 
 var getCurrentQuiz = function(userName, callback) {
-    user.findOne({nsid: UserName} , function(err, u) {
+    user.findOne({nsid: userName} , function(err, u) {
         if(err || !u) {
             console.log('could not retrieve users current quiz');
             cb (err, null);
@@ -30,19 +30,19 @@ var getCurrentQuiz = function(userName, callback) {
             result.currentQuiz = u.currentQuiz;
             result.currentHash = u.currentHash;
             result.currentExpire = u.currentExpire;
-            cb(0, result);
+            callback(0, result);
         }
     });
 }
 
 var setCurrentQuiz = function(userName, cQuiz, cHash, cExpire, cb) {
-    usser.update( 
+    console.log('setCurrentQuiz got: ', userName, cQuiz, cHash, cExpire);
+    user.update( 
             { 'nsid': userName },
             { $set: { 'currentQuiz': cQuiz,
                       'currentHash': cHash,
                       'currentExpire': cExpire }},
-              cb
-    );
+              cb);
 }
 
 var modQuestion = function(userName, collection, id, hash, answer, cb) {
@@ -55,13 +55,8 @@ var modQuestion = function(userName, collection, id, hash, answer, cb) {
                 }
             },
             { $set: { 'quizzes.$.answer': answer, 
-                      'quizzes.$.time': Date.now }},
-            cb
-    );
-    //u.save(function(err) {
-    //    console.log('Error updating answers', err);
-    //    cb(err, id);
-    //});
+                      'quizzes.$.time': Date.now() }},
+            cb);
 }
 
 var recordSchema = mongoose.Schema( {
@@ -123,7 +118,7 @@ var deleteAll = function() {
 
 var printAll = function() {
     user.find()
-        .select('nsid snum name')
+        .select('nsid snum name quizzes')
         .exec(function(err, users) {
             if (err) return console.error(err);
             if (users.length === 0) {
@@ -131,13 +126,13 @@ var printAll = function() {
                 return false;
             }
             for(i = 0; i < users.length; ++i) {
-                console.log('%d, %s, %s, %s', i+1, users[i].name, users[i].nsid, users[i].snum);
+                console.log('%d, %s, %s, %s, %s', i+1, users[i].name, users[i].nsid, users[i].snum, users[i].quizzes);
             }
     });
 };
 
 var addUser = function(nsid, name, snum) {
-    var u = new user({name: name, nsid: nsid, snum: snum});
+    var u = new user({name: name, nsid: nsid, snum: snum, quizzes: []});
     u.save(function(err, u) {
         if (err) return console.error(err);
         u.success();
@@ -195,6 +190,37 @@ var dump = function(err, u) {
     mycb();
 }
 
+var curHash = null;
+
+var gcscb = null;
+
+var filterSet = function(err, u) {
+
+    console.log('filter set got userdata: ', err, u);
+    console.log(u.quizzes[0]);
+    mySet = [];
+    for (var x = 0; x < u.quizzes.length; ++x) {
+	var myObj = {}
+	if (u.quizzes[x]['setHash'] === curHash) {
+		myObj.coll = u.quizzes[x]['coll'];
+		myObj.question = u.quizzes[x]['question'];
+		myObj.answer = u.quizzes[x]['answer'];
+		mySet.push(myObj);
+	}
+    }
+    console.log ('sending: ', mySet);
+    console.log ('curHash: ', curHash);
+    gcscb(mySet);
+}
+
+var getCurrentSet = function(nsid, hash, cb) {
+    curHash = hash;
+    gcscb = cb;
+    var query = user.findOne({'nsid': nsid});
+    query.select('quizzes');
+    query.exec(filterSet);
+}
+
 var dumpData = function(nsid, cb) {
     mycb = cb;
     var query = user.findOne({'nsid': nsid});
@@ -222,8 +248,9 @@ userdb.haveUser = haveUser;
 userdb.addQuestion = addQuestion;
 userdb.modQuestion = modQuestion;
 userdb.dumpData = dumpData;
-userdb.getCurrentQuiz = getCurrentQuiz,
+userdb.getCurrentSet = getCurrentSet,
 userdb.setCurrentQuiz = setCurrentQuiz,
+userdb.getCurrentQuiz = getCurrentQuiz,
 
 module.exports = userdb;
 
