@@ -1,0 +1,94 @@
+#!/usr/bin/env node
+
+// create global db connection
+var config = require(__dirname + '/lib/config.js');
+var mongoose = require('mongoose');
+mongoose.connect('mongodb://localhost/' + config.db);
+var db = mongoose.connection;
+db.on('error', console.log.bind(console, 'connection error:'));
+db.once('open', console.log.bind(console, 'connection established'));
+global.mongoose  = mongoose;
+
+var express = require('express');
+var cookieParser = require('cookie-parser')
+var quizdb = require(__dirname + '/lib/v2quizdb.js');
+var userdb = require(__dirname + '/lib/v2userdb.js');
+//var auth = require(__dirname + '/lib/auth.js');
+
+//userdb.init();
+//userdb.printAll();
+
+var app = express();
+
+var logAll = function(req, res, next) {
+	app.locals.myPath = req.path; // save current path so we can recall it in routes
+	var key = null;
+	if (req.cookies && req.cookies.myLingKey) {
+		key = req.cookies['myLingKey'];
+	}
+	console.log('key: ' + key);
+
+	re = /^\/resources/;
+	if (re.test(req.path)) {
+		console.log('Attempt to access resources. key: %s', key);
+		//if (!auth.hasPermission(key)) {
+	//		console.log('not authorized');
+	//		res.end('Not authorized to access resources');
+	 //       } else {
+	//		console.log('authorized :-)');
+	//		next();
+	//	}
+	} else {
+		next();
+	}
+}		
+
+app.use(cookieParser());
+app.use(logAll);
+
+//setInterval(auth.purgeAuth, config.purgeInterval * 1000);
+
+
+var fs = require('fs');
+
+// var authenticate = require(__dirname + '/routes/authenticate');
+// var docs = require(__dirname + '/routes/docs');
+// var quizzes = require(__dirname + '/routes/quizzes');
+// var getset = require(__dirname + '/routes/getSet');
+// var check = require(__dirname + '/routes/check');
+// var update = require(__dirname + '/routes/update');
+// var quiz = require(__dirname + '/routes/quiz');
+// var checkRecords = require(__dirname + '/routes/checkRecords');
+// var setRecords = require(__dirname + '/routes/setRecords');
+// var getResumeSet = require(__dirname + '/routes/getResumeSet');
+
+// app.use('/auth', authenticate);
+// app.use('/book_res', docs);
+// app.use('/handouts_res', docs);
+// app.use('/slides_res', docs);
+// app.use('/quizzes_res', quizzes);
+// app.use('/getset', getset);
+// app.use('/check', check);
+// app.use('/update', update);
+// app.use('/quiz_res', quiz);
+// app.use('/checkrecords', checkRecords);
+// app.use('/setrecords', setRecords);
+// app.use('/getresumeset', getResumeSet);
+app.use('/resources/book', express.static(__dirname + '/resources/book/'));
+app.use('/resources/handouts', express.static(__dirname + '/resources/handouts/'));
+app.use('/resources/slides', express.static(__dirname + '/resources/slides/'));
+app.use('/resources/images', express.static(__dirname + '/resources/images/'));
+
+var server = app.listen(config.port, function () {
+	console.log('Listening on port %d', server.address().port);
+	console.log('Setup: %s', config.setup);
+	console.log('Deployment: %s', config.deployment);
+});
+
+quizdb.getQuestion(1, 'Practice-1', function(question) {
+    if (question != -1) {
+        question.print();
+    }
+});
+
+userdb.init();
