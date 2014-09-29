@@ -17,5 +17,8 @@ config.quizzes = {
 // @@nodeserver@@=http://localhost
 // @@nodeport@@=8000
 // @@user@@=http
+Object.keys(config.quizzes).forEach( function(k) {
+    console.log('Quiz: %s' , k, config.quizzes[k]);
+});
 module.exports = config;
 

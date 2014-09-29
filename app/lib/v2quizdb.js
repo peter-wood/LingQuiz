@@ -16,9 +16,6 @@ var quizSchema = mongoose.Schema( {
         qset: String},
         { 'collection': 'questions' } );
 
-quizSchema.methods.count = function(cb) {
-    this.model('question').count({set: this.set}, cb);
-};
 
 quizSchema.methods.check = function(answer) {
     return (this.correct === answer);
@@ -38,6 +35,31 @@ quizSchema.methods.print = function() {
     console.log('correct: ', this.correct); 
 };
 
+quizSchema.methods.getConf = function() {
+    return config.quizzes[this.qset];
+}
+
+var initConf = function(cb) {
+    var counter = Object.keys(config.quizzes).length;
+
+    var reduce= function (qset, c){
+        config.quizzes[qset]['total'] = c;
+        counter--;
+        if (counter === 0) {
+            cb();
+        }
+    }
+
+    Object.keys(config.quizzes).forEach( function(key) {
+        questionModel.count({'qset': key}, function(err, c) {
+            reduce(key, c);
+        });
+    });
+}
+
+var getQuizzes = function() {
+    return config.quizzes;
+}
 
 var questionModel = mongoose.model('question', quizSchema);
 
@@ -46,7 +68,7 @@ var getQuestion = function(number, qset, cb) {
                 { 'qset': qset, 'number': number }, 
             function(err, question) {
                 if (err) {
-                    console.log('Could not get Question: ', number, set, err);
+                    console.log('Could not get Question: ', number, qset, err);
                     cb(-1);
                 } else {
                     cb(question);
@@ -54,8 +76,44 @@ var getQuestion = function(number, qset, cb) {
             });
 }
 
+var randset = function(min, max, n) {
+    var mySet = [];
+    var set = [];
+    for (var x = min; x < max+1; ++x) {
+        set.push(x);
+    }
+    for (x = 0; x < n; ++x) {
+        var index = Math.floor(Math.random() * set.length);
+        mySet.push(set.splice(index,1)[0]);
+    }
+    console.log('randset, min: %d, max: %d, n: %d, set: %s', min, max, n, mySet);
+    return mySet;
+}
+
+
+var getRandomSet = function(qset, number, cb) {
+    var ourSet = randset(1,config.quizzes[qset]['total']+1,number);
+    var result = [];
+
+    var reduce = function(question) {
+        result.push(question);
+        ourSet.splice(question['Number'], 1);
+        if (ourSet.length === 0) {
+            cb(result);
+        } else {
+            getQuestion(ourSet[0], qset, reduce);
+        }
+    }
+
+    getQuestion(ourSet[0],qset,reduce);
+}
+
+
 var quizdb = {};
 quizdb.getQuestion = getQuestion;
+quizdb.getQuizzes = getQuizzes;
+quizdb.getRandomSet = getRandomSet;
+quizdb.initConf = initConf;
 module.exports = quizdb;
 
 

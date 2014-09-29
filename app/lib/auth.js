@@ -1,7 +1,7 @@
 // authentication routines
 
 var uuid = require('uuid');
-var db = require('./userdb.js');
+var db = require('./v2userdb.js');
 var config = require('./config.js');
 
 var authenticated = {}; // holds all authenticated users

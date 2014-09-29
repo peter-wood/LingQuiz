@@ -1,10 +1,8 @@
 var express = require('express');
-var fs = require('fs');
 var auth = require('../lib/auth.js');
-var config = require('../lib/config.js');
+var userdb = require('../lib/v2userdb.js');
 var router = express.Router();
 var currentRes = null;
-var result = null;
 
 router.get('/', function(req, res) {
     console.log('quizzes GET accessed');
@@ -12,18 +10,18 @@ router.get('/', function(req, res) {
     var key = req.cookies['myLingKey'];
     console.log('key: ' + key);
     auth.printAuth();
-    if (!auth.hasPermission(key)) {
+    var authdata = auth.hasPermission(key);
+    if (!authdata) {
 	console.log('not authorized');
-        result = {'result': -1};
-        sendResult();
+        sendResult({'result': -1});
     } else {
       console.log('authorized :-)');
-      sendList();
+      sendList(authdata.user);
     }
 });
 
 
-var sendResult = function() {
+var sendResult = function(result) {
   if (currentRes==null) {
     console.log('respponse already send');
     return;
@@ -34,18 +32,12 @@ var sendResult = function() {
 }
 
 
-var sendList = function() {
+var sendList = function(user) {
   if (currentRes==null) {
     console.log('respponse already send');
     return;
   }
-  myList = [];
-  for (var x in config.quizzes) {
-      if (config.quizzes[x]['open'] === true) {
-          myList.push(config.quizzes[x]['quiz']);
-      }
-  }
-  result = {'result': myList};
-  sendResult();
+  userdb.getQuizzes(user, sendResult);
+  //result = {'result': userdb.getQuizzes(user, sendResult)};
 }
 module.exports = router;
