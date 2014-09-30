@@ -13,8 +13,6 @@ var myQuestionSchema = mongoose.Schema( {
 myQuestionSchema.methods.print = function() {
     console.log('Question: ') // , this.myQuestion);
     this.myQuestion.print();
-    console.log('answer 1? ', this.myQuestion.check(1));
-    console.log('answer 2? ', this.myQuestion.check(2));
     console.log('Answer: ', this.answer);
     console.log('Last Access: ', this.lastaccess);
     console.log('Config: ', this.myQuestion.getConf());
@@ -25,7 +23,7 @@ var myQuizSchema = mongoose.Schema( {
     type: String,
     open: Boolean,
     attempt: Number,
-    time: Date,
+    time: Number,
     started: Date,
     numQuestions: Number,
     completed: Boolean,
@@ -48,6 +46,9 @@ myQuizSchema.methods.print = function() {
     console.log('canRetake: ', this.canRetake);
     console.log('canReview: ', this.canReview);
     console.log('Questions: ');
+    if (! this.questionSet) {
+        return;
+    }
     for (var q = 0; q < this.questionSet.length; ++q) {
         this.questionSet[q].print();
     }
@@ -93,7 +94,6 @@ var init = function () {
                 testingData[index].nsid, 
                 testingData[index].name,
                 testingData[index].snum, function() {
-                 console.log('print complete');
                 });
         };
     });
@@ -113,13 +113,13 @@ var deleteAll = function(cb) {
 var saveUser = function(u,cb) {
     u.populate('quizzes.questionSet.myQuestion', function(err, p) {
             if (err) {
-                console.log ('populate returned ',err , p);
+                // console.log ('populate returned ',err , p);
             }
             else {
                 u.save(function(err, u) {
                 if (err) return console.error(err);
                 u.success();
-                u.print();
+                // u.print();
                 cb(u);
                 });
             }
@@ -155,16 +155,117 @@ var get = function(nsid, cb) {
             console.log('Error: ', err, u);
             cb(false);
         } else {
-            cb(u);
+            u.populate('quizzes.questionSet.myQuestion', function(err, p) {
+                if (err) {
+                    console.log ('populate returned ',err , p);
+                }
+                else {
+                 cb(u);
+                }
+            });
         }
     });
 }
 
-var getQuizzes = function(nsid, cb) {
-    console.log('in userdb.getQuizzes');
-    var all = quizdb.getQuizzes();
+var modQuestion = function(nsid, index, number, answer, cb) {
+    get(nsid, function(u) {
+        result = {};
+        u['quizzes'][index]['questionSet'][number]['answer'] = answer;
+        u['quizzes'][index]['questionSet'][number]['lastaccess'] = Date.now();
+        if (u['quizzes'][index]['canReview']) {
+            result.correct = u['quizzes'][index]['questionSet'][number]['myQuestion'].check(answer);
+        }
+        result.updated = 1;
+        saveUser(u, function(u) {
+            u['quizzes'][index].print();
+            cb(0, result);
+        });
+    });
+}
+        
 
-    var update = function(u, index, key) {
+
+
+
+
+var getSet = function(nsid, index, cb) {
+    console.log('get set called with: ', nsid, index);
+    get(nsid, function(u) {
+        result = [];
+        for (var x = 0; x < u['quizzes'][index]['questionSet'].length; ++x) {
+            obj = {};
+            obj.number = u['quizzes'][index]['questionSet'][x]['myQuestion']['number'];
+            obj.qset = u['quizzes'][index]['questionSet'][x]['myQuestion']['qset'];
+            obj.question = u['quizzes'][index]['questionSet'][x]['myQuestion']['question'];
+            obj.text = u['quizzes'][index]['questionSet'][x]['myQuestion']['text'];
+            obj.resource = u['quizzes'][index]['questionSet'][x]['myQuestion']['resource'];
+            obj.opt1 = u['quizzes'][index]['questionSet'][x]['myQuestion']['opt1'];
+            obj.opt2 = u['quizzes'][index]['questionSet'][x]['myQuestion']['opt2'];
+            obj.opt3 = u['quizzes'][index]['questionSet'][x]['myQuestion']['opt3'];
+            obj.opt4 = u['quizzes'][index]['questionSet'][x]['myQuestion']['opt4'];
+            obj.opt5 = u['quizzes'][index]['questionSet'][x]['myQuestion']['opt5'];
+            obj.answer = u['quizzes'][index]['questionSet'][x]['answer'];
+            result.push(obj);
+        }
+        cb(0, result);
+    });
+}
+
+
+var getQuizzes = function(nsid, cb) {
+
+   var send = function() {
+       console.log('userdb.getQuizzes saving record'); 
+       // console.log(currUser);
+       saveUser(currUser, function(u) {
+           // console.log('save returned: ************** ', u);
+           var result = [];
+           for (var x = 0; x < u.quizzes.length; ++x) {
+               var obj = {};
+               obj.name = u.quizzes[x]['name'];
+               obj.index = x;
+               obj.type = u.quizzes[x]['type'];
+               obj.open = u.quizzes[x]['open'];
+               obj.attempt = u.quizzes[x]['attempt'];
+               obj.time = u.quizzes[x]['time'];
+               obj.started = u.quizzes[x]['started'];
+               obj.numQuestions = u.quizzes[x]['numQuestions'];
+               obj.total = u.quizzes[x]['total'];
+               obj.completed = u.quizzes[x]['completed'];
+               obj.canResume = u.quizzes[x]['canResume'];
+               obj.canRetake = u.quizzes[x]['canRetake'];
+               obj.canReview = u.quizzes[x]['canReview'];
+               result.push(obj);
+           }
+           // console.log('leaving getQuizzes, sending: ', result);
+           cb({'result': result});
+      });
+   }
+
+   var toAdd = [];
+   var currUser = null;
+
+   var fill = function(obj) {
+       // console.log('in fill', obj);
+        quizdb.getRandomSet(obj['qset'], obj['n'], obj['index'], getRes);
+    }
+    
+   var getRes = function(questions, index) {
+       // console.log('in getRes', toAdd);
+       for (var x = 0; x < questions.length; ++ x) {
+           // console.log('adding question: ', questions[x]);
+           currUser['quizzes'][index]['questionSet'].push({'myQuestion': questions[x], 'answer': 0, 'lastaccessed': Date.now()});
+           // console.log('questionSet length: ', currUser['quizzes'][index]['questionSet'].length);
+       }
+       toAdd.splice(0,1);
+       if (toAdd.length === 0) {
+           send();
+        } else {
+           fill(toAdd[0]);
+       }
+   }
+
+   var update = function(u, index, key) {
         console.log('in userdb.getQuizzes.update');
         u['quizzes'][index]['name'] = key;
         u['quizzes'][index]['type'] = all[key]['type'];
@@ -173,16 +274,13 @@ var getQuizzes = function(nsid, cb) {
         u['quizzes'][index]['numQuestions'] = all[key]['numQuestions'];
         u['quizzes'][index]['canRetake'] = all[key]['retake'];
         u['quizzes'][index]['canReview'] = all[key]['review'];
-        if (u['quizzes'][index]['questionSet'].length === 0) {
-            u['quizzes'][index]['attempt'] = 0;
-            u['quizzes'][index]['started'] = -1;
-            u['quizzes'][index]['completed'] = false;
-            u['quizzes'][index]['canResume'] = true;
-            u['quizzes'][index]['questionSet'] = quizzb.getRandomSet(key, all[key]['numQuestions']);
-        } 
-    }
+         
+   }
 
+    console.log('in userdb.getQuizzes');
+    var all = quizdb.getQuizzes();
     get(nsid, function(u) {
+        currUser = u;
         Object.keys(all).forEach( function(key) {
             var found = false;
             for (var x = 0; x < u.quizzes.length; ++x) {
@@ -194,32 +292,21 @@ var getQuizzes = function(nsid, cb) {
             if (!found) {
                 u.quizzes.push({'name': key, questionSet: []});
                 update(u, u.quizzes.length - 1, key);
-            }
+                u['quizzes'][u.quizzes.length - 1]['attempt'] = 0;
+                u['quizzes'][u.quizzes.length - 1]['started'] = -1;
+                u['quizzes'][u.quizzes.length - 1]['completed'] = false;
+                u['quizzes'][u.quizzes.length - 1]['canResume'] = true;
+                toAdd.push({index: u.quizzes.length - 1, 'qset': key, 'n': all[key]['numQuestions']});
+           }
         });
-        console.log('userdb.getQuizzes saving record');
-        saveUser(u, function(u) {
-            console.log('save returned: ************** ', u);
-            var result = [];
-            for (var x = 0; x < u.quizzes.length; ++x) {
-                var obj = {};
-                obj.name = u.quizzes[x]['name'];
-                obj.index = x;
-                obj.type = u.quizzes[x]['type'];
-                obj.open = u.quizzes[x]['open'];
-                obj.attempt = u.quizzes[x]['attempt'];
-                obj.time = u.quizzes[x]['time'];
-                obj.started = u.quizzes[x]['started'];
-                obj.numQuestions = u.quizzes[x]['numQuestions'];
-                obj.completed = u.quizzes[x]['completed'];
-                obj.canResume = u.quizzes[x]['canResume'];
-                obj.canRetake = u.quizzes[x]['canRetake'];
-                obj.canReview = u.quizzes[x]['canReview'];
-                result.push(obj);
-            }
-            console.log('leaving getQuizzes, sending: ', result);
-            cb({'result': result});
-        });
+        if (toAdd.length === 0) { 
+            send(); 
+        } else {
+            fill(toAdd[0]);
+        }
     });
+
+    
 }
     
 var haveUser = function(nsid, pass, cb) {
@@ -249,6 +336,8 @@ userdb.init = init;
 userdb.haveUser = haveUser;
 userdb.printAll = printAll;
 userdb.getQuizzes = getQuizzes;
+userdb.getSet = getSet;
+userdb.modQuestion = modQuestion;
 
 module.exports = userdb;
 

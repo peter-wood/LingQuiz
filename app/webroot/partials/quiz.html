@@ -25,9 +25,7 @@
 				</a>
 		        </div>
 			<div class='row col-md-12'>
-				<button ng-show = 'wantToResume' type='button' class='btn btn-success' ng-click="loadResumeSet()">Resume</button>
-				<button ng-show = 'wantToResume' type='button' class='btn btn-danger' ng-click="killResume()">Don't resume</button>
-				<button ng-show = 'start && !wantToResume' type='button' class='btn btn-success' ng-click="startQuiz()">Start</button>
+				<button ng-show = 'start' type='button' class='btn btn-success' ng-click="startQuiz()">Start</button>
 				<button ng-show = '!start && back' type='button' class='btn btn-primary' ng-click="nextQuestion('-')">Back</button>
 				<button ng-show = '!save &&!start && questions[currentIndex]["answer"] === 0' type='button' class='btn btn-warning'><span class='glyphicon glyphicon-unchecked'></span></button>
 				<button ng-show = '!save &&!start && !questions[currentIndex]["correct"] && questions[currentIndex]["answer"] > 0' type='button' class='btn btn-danger'><span class='glyphicon glyphicon-remove'></span></button>
@@ -43,7 +41,7 @@
             Make sure that you answer all questions, before you submit your
             answers.</h3>
     </div>
-    <div ng-hide='valid'>
+    <div ng-hide='valid || reloadProblem'>
         <h3>You are not logged in, or your session has expired. Please log
             in.</h3>
     </div>

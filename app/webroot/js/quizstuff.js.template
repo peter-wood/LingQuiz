@@ -32,40 +32,14 @@ angular.module('myApp.quizstuff', [])
     .controller('QuizCtrl', ['$state', '$scope', '$modal', '$stateParams', '$http', '$rootScope', '$interval', 
         function($state, $scope, $modal, $stateParams, $http, $rootScope, $interval) {
 
-	var setRecords = function(cQuiz, cHash, cExpire, cb) {
-        if ($scope.killed === true) {
-            console.log('killed');
-            cb(0,0);
-        } else {
-            console.log('not killed - update');
-            var data = {}
-            data.cQuiz = cQuiz;
-            data.cHash = cHash;
-            data.cExpire = cExpire;
-            $http.jsonp('@@nodeserver@@:@@nodeport@@/setrecords?data=' 
-                    + encodeURIComponent(JSON.stringify(data)) 
-                    +'&callback=JSON_CALLBACK')
-                    .success(function(upRes) {
-                        console.log('records updated');
-                        if(cb) {
-                            cb();
-                        }
-                    });
-        }
-    }
-
-    var getQuestions = function(which, andThen) {
-            console.log('in getQuestions, which: %s', which);
-            console.log('in getQuestions, rootScope: %s', $rootScope.currentQuiz);
-            console.log('in getQuestions, currentQuiz: %s', $scope.currentQuiz);
-            console.log('in getQuestions, scope quiz: %s', $scope.quiz);
+    var getQuestions = function() {
             if ($scope.loaded == true) {
                 console.log('questions already loaded');
                 return;
             }
             $scope.loaded = true;
             var data = {};
-            data.which = which;
+            data.index = $rootScope['currentQuiz']['index'];
             $http.jsonp('@@nodeserver@@:@@nodeport@@/getset?data=' 
                 + encodeURIComponent(JSON.stringify(data)) 
                 +'&callback=JSON_CALLBACK')
@@ -75,28 +49,14 @@ angular.module('myApp.quizstuff', [])
                         $scope.valid = false;
                         return;
                     } else {
-                        $scope.retake = QuizRecord.retake;
-                        if ($scope.retake === false && (which === $scope.currentQuiz)) {
-                            $scope.alerts.push({msg: 'This quiz can only be take once', 
-                                type: 'danger'});
-                            return;
-                        }
-                        $scope.valid = true
-                        if (QuizRecord.open === false) {
-                            $scope.alerts.push({msg: 'This question set is not open', 
-                                type: 'danger'});
-                            return;
-                        }
-                        $scope.questions = QuizRecord.questions;
-                        $scope.time = new Date(QuizRecord.time * 1000 * 60);
-                        $scope.save = QuizRecord.save;
-                        if ($scope.save) {
-                            $scope.warning = true;
-                            $scope.correctMessage = "Answered";
-                        }
-                        $scope.numQuestions = QuizRecord.numQuestions;
-                        $scope.hash = QuizRecord.hash;
-                        andThen();
+                        console.log('got quesions: ', QuizRecord);
+                        $scope.start = true;
+                        $scope.valid = true;
+                        $scope.questions = QuizRecord;
+                        $scope.time = new Date($rootScope['currentQuiz']['time'] * 1000 * 60);
+                        console.log('time: ', $scope.time, 'saved', $rootScope['currentQuiz']['time']);
+                        $scope.numQuestions = $rootScope['currentQuiz']['numQuestions'];
+                        // $scope.nextQuestion(0);
                     }
                 });
         }
@@ -117,50 +77,24 @@ angular.module('myApp.quizstuff', [])
         }
 
         var checkAnswer = function() {
-            var updateVars = function(checkRes) {
-                $scope.questions[$scope.currentIndex]["correct"] = checkRes.result;
-                console.log($scope.time, Date.now());
-                var expire = new Date($scope.time + Date.now());
-                console.log('expire set to: ', expire);
-                setRecords($scope.quiz, $scope.hash, expire,function() {
-                    updateView();
-                });
-            }
-
-            var callCheck = function() {
-                $http.jsonp('@@nodeserver@@:@@nodeport@@/check?data=' 
-                + encodeURIComponent(JSON.stringify(data)) 
-                +'&callback=JSON_CALLBACK')
-                .success(function(checkRes) {
-                    if (checkRes.result === -1) {
-                        console.log('got invalid result');
-                        return
-                    } else {
-                        console.log('got data: %s', JSON.stringify(checkRes));
-                        updateVars(checkRes)
-                    }
-                });
-            }
-
             var data = {}
-            data.quiz = $scope.quiz;
-            data.id = $scope.questions[$scope.currentIndex]['id'];
+            data.index = $rootScope['currentQuiz']['index'];
+            data.number = $scope.currentIndex;
             data.answer = $scope.questions[$scope.currentIndex]["answer"];
-            data.hash = $scope.hash;
-            data.save = $scope.save;
             console.log('calling update: ', data);
             $http.jsonp('@@nodeserver@@:@@nodeport@@/update?data=' 
                 + encodeURIComponent(JSON.stringify(data)) 
                 +'&callback=JSON_CALLBACK')
                 .success(function(upRes) {
-                    if(upRes.data != 1) {
+                    if(upRes.data.updated != 1) {
                         console.log('something went wrong updating answers');
                         return;
                     } else { 
-                        console.log('answer updated');
-                        callCheck();
+                        console.log('answer updated', upRes);
+                        $scope.questions[$scope.currentIndex]['correct'] = upRes.data.correct;
+                        updateView();
                     }
-            });
+                });
         }
 
         $scope.nextQuestion = function(direction) {
@@ -187,49 +121,9 @@ angular.module('myApp.quizstuff', [])
                     document.getElementById('b' + x.toString()).className = cs;
                 }
             }
-            checkAnswer();
         }
 
-        $scope.loadResumeSet = function() {
-            console.log('in loadResumeSet');
-            $scope.wantToResume = false;
-            var data = {};
-            data.cHash = $scope.currentHash;
-            $http.jsonp('@@nodeserver@@:@@nodeport@@/getresumeset?data=' 
-                + encodeURIComponent(JSON.stringify(data)) 
-                +'&callback=JSON_CALLBACK')
-                .success(function(QuizRecord) {
-                    console.log('resume got: ', QuizRecord);
-                    if (QuizRecord.result === -1) {
-                        console.log('got invalid result');
-                        $scope.valid = false;
-                        return
-                    } else {
-                        $scope.alerts = [];
-                        $scope.valid = true
-                        if (QuizRecord.open === false) {
-                            $scope.alerts.push({msg: 'This question set is not open', type: 'danger'});
-                            return;
-                        }
-                        $scope.questions = QuizRecord.questions;
-                        console.log('questions: ', $scope.questions);
-                        $scope.time = new Date (Date.parse($scope.currentExpire) - Date.now());
-                        $scope.save = QuizRecord.save;
-                        if ($scope.save) {
-                            $scope.warning = true;
-                            $scope.correctMessage = "Answered";
-                        }
-                        $scope.retake = QuizRecord.retake;
-                        $scope.numQuestions = QuizRecord.numQuestions;
-                        //$scope.hash = QuizRecord.hash;
-                        $scope.hash = QuizRecord.hash;
-                        $scope.quiz = QuizRecord.collection;
-                        console.log('hash, time,', $scope.hash, $scope.time);
-                        $scope.nextQuestion(0);
-                    }
-                });
-        }
- 
+
         $scope.closeAlert = function(index) {
 	        $scope.alerts.splice(index,1);
         }
@@ -239,22 +133,20 @@ angular.module('myApp.quizstuff', [])
         $scope.startQuiz = function() {
             $scope.alerts = [];
             $scope.warning = false;
-            getQuestions($scope.quiz, function() {
-                promise = $interval( function() {
-                    $scope.time = $scope.time - 1000;
-                    if ($scope.time <= 0) {
-                        var msg = null;
-                        if ($scope.save) {
-                            msg = 'The time is up. All your answers have been saved.';
-                        } else {
-                            msg = 'The time is up. Navigate back to "Quizzes" and try again.';
-                        }
-                        $scope.alerts.push({'msg': msg, 'type': 'danger'});
-                        $scope.stop('timeOut');
+            promise = $interval( function() {
+                $scope.time = $scope.time - 1000;
+                if ($scope.time <= 0) {
+                    var msg = null;
+                    if ($scope.save) {
+                        msg = 'The time is up. All your answers have been saved.';
+                    } else {
+                        msg = 'The time is up. Navigate back to "Quizzes" and try again.';
                     }
-               }, 1000);
-               $scope.nextQuestion('0');
-          });
+                    $scope.alerts.push({'msg': msg, 'type': 'danger'});
+                    $scope.stop('timeOut');
+                }
+           }, 1000);
+           $scope.nextQuestion('0');
         }
 
         $scope.stop = function(reason) {
@@ -298,94 +190,20 @@ angular.module('myApp.quizstuff', [])
             });
         }
 
-    $scope.killResume = function() {
-			setRecords('none', 0, 0, function(err, count) {
-                console.log('error, count: ', err, count);
-                $scope.killed = true;
-                $rootScope.noResume = true;
-                $state.go('quizzes');
-            });
-    }
 
-        
-
-	
-
-	var checkResume = function(canResume) {
-		console.log('checkResume called');
-        if ($scope.checkedResume == true) {
-            console.log('checkResume already called');
-            return;
-        }
-        $scope.checkedResume = true;
-		if (($scope.noRestart || !canResume) && $scope.quiz != null) {
-			// $scope.alerts.push({'msg': 'No resume data available, loading new questions', 'type': 'info'});
-			// getQuestions($scope.quiz);
-            $scope.valid=true;
-            $scope.start=true;
-		} else 
-		if (!canResume && !$scope.quiz) {
-			$scope.alerts.push({'msg': 'Resume not possible and no quiz selected. Go back to quizzes', 'type': 'danger'});
-		} else 
-		if (canResume && ($scope.currentExpire < Date.now())) {
-			$scope.alerts.push({'msg': 'Resume not possible Time exceeded.', 'type': 'danger'});
-            $scope.killed = true;
-            $state.go('quizzes');
-		} else { // canResume and currentExpire ok
-			$scope.alerts.push({'msg': 'There is a quiz that can be resumed.', 'type': 'success'});
-            $scope.wantToResume = true;
-            $scope.start = true;
-            $scope.valid = true;
-		}
-	}
-        
-        var checkRecordsExist = function() {
-            if ($scope.checkedRecs === true) {
-                console.log('checked Recs already');
-                return;
-            }
-            $scope.checkedRecs = true;
-            console.log('in checkRecordsExist');
-            $http.jsonp('@@nodeserver@@:@@nodeport@@/checkrecords?callback=JSON_CALLBACK')
-                .success(function(record) {
-                    if (record.result === -1) {
-                        console.log('got invalid result');
-                        $scope.canRestart = false;
-                        checkResume(false);
-                    } else {
-                        $scope.currentQuiz = record.currentQuiz;
-                        $scope.currentExpire = record.currentExpire;
-                        $scope.currentHash = record.currentHash;
-                        console.log('checkRecordExist got curQuiz, curHash, curExp', 
-                            $scope.currentQuiz, $scope.currentExpire, $scope.currentHash);
-                        if (($scope.currentHash === 0)|| ($scope.currentQuiz === 'none')) {
-                            $scope.canRestart = false;
-                            $scope.noRestart = true;
-                            checkResume(false);
-                        } else if (
-                            $scope.currentExpire < Date.now()) {
-                            $scope.canRestart = false;
-                            $scope.noRestart = true;
-                            checkResume(false);
-                        } else {
-                            $scope.canRestart = true;
-                            checkResume(true);
-                        }
-                    }
-                });
-        }
 
         var initialize = function() {
-            console.log('in init. rootscope: ', $rootScope['currentQuiz']);
-            $scope.quiz = $rootScope['currentQuiz'];
-            if ($scope.quiz) {
-                $scope.alerts.push({'msg': 'Accessing quiz: ' + $scope.quiz, 'type': 'info'});
-            } else {
+            console.log('in init rootscope: ', $rootScope['currentQuiz']);
+            if ($rootScope['currentQuiz'] === undefined) {
                 $scope.quiz = null;
-                $scope.alerts.push({'msg': 'No quiz specified Checking for posible resume.', 'type': 'info'});
+                $scope.reloadProblem = true;
+                $scope.alerts.push({'msg': 'No quiz specified Go back and select a quiz', 'type': 'warning'});
+            } else {
+                $scope.quiz = $rootScope['currentQuiz']['name'];
+                $scope.alerts.push({'msg': 'Accessing quiz: ' + $scope.quiz, 'type': 'info'});
+                getQuestions();
             }
-            checkRecordsExist();
-	}
+        }
 
 
 
@@ -412,15 +230,8 @@ angular.module('myApp.quizstuff', [])
         $scope.alerts = [];  // holds messages
         $scope.canRestart = false; // will be set to false if retake false, time up, and records exist
         $scope.noRestart = false;
-        $scope.currentQuiz = 0;
-        $scope.currentHash = 0;
-        $scope.currentExpire = 0;
-        $scope.loaded = false;
-        $scope.checkedRecs = false;
-        $scope.checkedResume = false;
         $scope.quiz = null; 
-        $scope.wantToResume = false;
-        $scope.killed = false;
+        $scope.reloadProblem = false;
         initialize(); // call init
     }]);
 

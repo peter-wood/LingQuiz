@@ -91,15 +91,16 @@ var randset = function(min, max, n) {
 }
 
 
-var getRandomSet = function(qset, number, cb) {
-    var ourSet = randset(1,config.quizzes[qset]['total']+1,number);
+var getRandomSet = function(qset, number, index, cb) {
+    var ourSet = randset(1,config.quizzes[qset]['total'],number);
     var result = [];
 
     var reduce = function(question) {
         result.push(question);
         ourSet.splice(question['Number'], 1);
         if (ourSet.length === 0) {
-            cb(result);
+            console.log('getRandomSet returning set of ', result.length);
+            cb(result, index);
         } else {
             getQuestion(ourSet[0], qset, reduce);
         }
