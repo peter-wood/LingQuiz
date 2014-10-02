@@ -36,6 +36,10 @@ angular.module('myApp.quizstuff', [])
                 $scope.submitted = [];
                 for (var x = 0; x < $scope.result.length; ++x) {
                     var current = $scope.result[x];
+                    if (current.started) {
+                        console.log(current.started, current.time);
+                        current.limit = new Date(Date.parse(current.started) + (current.time * 60 * 1000)); 
+                    }
                     if (!current.completed && !current.started && current.open) {
                         $scope.take.push(current);
                     } else 
@@ -203,10 +207,10 @@ angular.module('myApp.quizstuff', [])
         var promise = undefined;
 
         $scope.startQuiz = function() {
-            if ($scope.hasStarted) {
+           if ($scope.hasStarted) {
                 return;
-            }
-            $scope.hasStarted = true;
+           }
+           $scope.hasStarted = true;
            $scope.alerts = [];
            $scope.warning = false;
            var myTime = new Date($scope.time * 1000 * 60);
@@ -241,7 +245,8 @@ angular.module('myApp.quizstuff', [])
                console.log('Setting started to: ', datenow);
                var data = {};
                data.index = $rootScope['currentQuiz']['index'];
-               data.toMod = [{'key': 'started', 'value': datenow}];
+               data.toMod = [{'key': 'started', 'value': datenow},
+                             {'key': 'canResume', 'value': true}];
                $http.jsonp('@@nodeserver@@:@@nodeport@@/modstatus?data=' 
                     + encodeURIComponent(JSON.stringify(data)) 
                     +'&callback=JSON_CALLBACK')
@@ -373,7 +378,7 @@ angular.module('myApp.quizstuff', [])
                 }
                 if (!$scope.started) $scope.startText = 'Start';
                 if ($scope.started) $scope.startText = 'Resume';
-                $scope.alerts.push({'msg': 'Accessing quiz: ' + $scope.quiz, 'type': 'info'});
+                // $scope.alerts.push({'msg': 'Accessing quiz: ' + $scope.quiz, 'type': 'info'});
                 getQuestions();
             }
         }
@@ -393,15 +398,10 @@ angular.module('myApp.quizstuff', [])
         $scope.answered = 0; // counter for answered questions in quiz mode
         $scope.time = null;  // will be set to time in minutes from config file 
         $scope.timeLeft = null;  // will be set at start and calculated on the basis of records 
-        $scope.save = null;  // set true in quiz mode - we record all answers no matter what 
-        $scope.retake = null; // is false when in quiz mode
         $scope.numQuestions = null; // questions in quiz set
-        $scope.hash = null;  // current hash
         $scope.questions = null; // array with all the questions
         $scope.disabled = false; // set true on time up, or submit
         $scope.alerts = [];  // holds messages
-        $scope.canRestart = false; // will be set to false if retake false, time up, and records exist
-        $scope.noRestart = false;
         $scope.quiz = null; 
         $scope.reloadProblem = false;
         $scope.startText = null;

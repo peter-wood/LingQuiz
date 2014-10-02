@@ -6,7 +6,7 @@
         <div class='panel-body'>
             <div ng-show="list" class='list-group'>
                 <a class='list-group-item' ng-click='goto(item)' ng-repeat="item in take"> 
-                    <span>{{item.name}}</span>
+                    <span>{{item.name}} (time limit: {{item.time}} minutes)</span>
                 </a>
             </div>
         </div>
@@ -17,7 +17,8 @@
         <div class='panel-body'>
             <div ng-show="list" class='list-group'>
                 <a class='list-group-item' ng-click='goto(item)' ng-repeat="item in resume"> 
-                    <span>{{item.name}}</span>
+                    <span>{{item.name}} (you can make changes until:
+                        {{item.limit | date:'HH:mm:ss'}})</span>
                 </a>
             </div>
         </div>
