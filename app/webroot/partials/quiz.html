@@ -1,12 +1,12 @@
 <div class="container" ng-controller="QuizCtrl">
-	<h2 ng-click="reset()">{{quiz}}<span class='pull-right' ng-hide="start">Time: {{time | date:'mm:ss' }}</span></h2>
+	<h2 ng-click="reset()">{{quiz}}<span class='pull-right' ng-hide="start || review">Time: {{timeLeft | date:'mm:ss' }}</span></h2>
 	<div><alert ng-repeat="alert in alerts" type="{{alert.type}}" close="closeAlert($index)">{{alert.msg}}</alert></div>
 	<div class='panel panel-default' ng-show='valid'>
 		<div class='panel-heading' ng-hide="start">
 			<h5 class='panel-title'>
 				<b>Question {{currentIndex + 1}}/{{numQuestions}}: </b>	{{questions[currentIndex]['question']}}
-                <span ng-show='!save' class="pull-right">{{correctMessage}}: {{gotRight}}/{{numQuestions}}</span>
-                <span ng-show='save' class="pull-right">{{correctMessage}}: {{answered}}/{{numQuestions}}</span>
+                <span ng-show='review' class="pull-right">{{correctMessage}}: {{gotRight}}/{{numQuestions}}</span>
+                <span ng-show='!review' class="pull-right">{{correctMessage}}: {{answered}}/{{numQuestions}}</span>
 			</h5>
 		</div>
 		<div class='panel-body row'>
@@ -25,17 +25,20 @@
 				</a>
 		        </div>
 			<div class='row col-md-12'>
-				<button ng-show = 'start' type='button' class='btn btn-success' ng-click="startQuiz()">Start</button>
+				<button ng-show = 'start && !review' type='button' class='btn btn-success' ng-click="startQuiz()">{{startText}}</button>
 				<button ng-show = '!start && back' type='button' class='btn btn-primary' ng-click="nextQuestion('-')">Back</button>
-				<button ng-show = '!save &&!start && questions[currentIndex]["answer"] === 0' type='button' class='btn btn-warning'><span class='glyphicon glyphicon-unchecked'></span></button>
-				<button ng-show = '!save &&!start && !questions[currentIndex]["correct"] && questions[currentIndex]["answer"] > 0' type='button' class='btn btn-danger'><span class='glyphicon glyphicon-remove'></span></button>
-				<button ng-show = '!save &&!start && questions[currentIndex]["correct"]' type='button' class='btn btn-success'><span class='glyphicon glyphicon-ok'></span></button>
+				<!--
+                <button ng-show = '!review &&!start && questions[currentIndex]["answer"] === 0' type='button' class='btn btn-warning'><span class='glyphicon glyphicon-unchecked'></span></button>
+                -->
+				<button ng-show = 'review && !questions[currentIndex]["correct"]' type='button' class='btn btn-danger'><span class='glyphicon glyphicon-remove'></span></button>
+				<button ng-show = 'review && questions[currentIndex]["correct"]' type='button' class='btn btn-success'><span class='glyphicon glyphicon-ok'></span></button>
 				<button ng-show = '!start && next' type='button' class='btn btn-primary' ng-click="nextQuestion('+')">Next Question</button>
-				<button ng-show = '!disabled && !start && save' type='button' class='btn btn-warning' ng-click="stop('submit')">Submit</button>
+                <span class='pull-right'><button ng-show = '!review && !disabled && !start' type='button' class='btn btn-warning' ng-click="openConfirm()">Submit</button></span>
+                <span class='pull-right'><button ng-show = 'review && canRetake' type='button' class='btn btn-warning' ng-click="resetQuestions()">Reset</button></span>
 		       </div>
 		</div>
 	</div>
-    <div ng-show='warning'>
+    <div ng-show='start && type === "quiz"'>
         <h3>Once you click 'Start', all your answers will be recorded. You will
             not be able to stop the timer, and you cannot retake this quiz.
             Make sure that you answer all questions, before you submit your

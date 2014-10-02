@@ -1,6 +1,6 @@
 var config = {}
 config.setup = 'sammy';
-config.deployment = 'testing'; // testing uses a test database, production uses a life database
+config.deployment = 'production'; // testing uses a test database, production uses a life database
 config.port = 8000;
 config.slides = '/home/peter/nodejs/LingQuiz/app/resources/slides/';
 config.handouts = '/home/peter/nodejs/LingQuiz/app/resources/handouts/';
@@ -10,7 +10,7 @@ config.loginValidFor = 45; // in minutes
 config.purgeInterval = 30; // in seconds
 config.quizzes = {
     'Practice-1': { 'type': 'practice', 'open': true, 'time': 15, 'numQuestions': 10, 'save': true, 'retake': true, 'review': true },
-    'Quiz-1': { 'type': 'quiz', 'open': true, 'time': 5, 'numQuestions': 10, 'save': true, 'retake': false, 'review': false }
+    'Quiz-1': { 'type': 'quiz', 'open': true, 'time': 5, 'numQuestions': 10, 'save': true, 'retake': false, 'review': true }
 };
 // @@webroot@@=/srv/http
 // @@webdir@@=ling111

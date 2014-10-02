@@ -1,11 +1,52 @@
 <div class="container" ng-controller='QuizzesCtrl'>
-    <h2 ng-click='reset()'>Quizzes</h2>
+    <h2>Quizzes</h2>
     <br/><br/>
-    <div ng-show="list" class='list-group'>
-        <a class='list-group-item' ng-click='goto(item)' " ng-repeat="item in result"> 
-            {{item.name}}
-        </a>
+    <div ng-show="list" class='panel panel-default'>
+        <div class='panel-heading'>Tests you can take</div>
+        <div class='panel-body'>
+            <div ng-show="list" class='list-group'>
+                <a class='list-group-item' ng-click='goto(item)' ng-repeat="item in take"> 
+                    <span>{{item.name}}</span>
+                </a>
+            </div>
+        </div>
     </div>
+
+    <div ng-show="list" class='panel panel-default'>
+        <div class='panel-heading'>Tests you can resume</div>
+        <div class='panel-body'>
+            <div ng-show="list" class='list-group'>
+                <a class='list-group-item' ng-click='goto(item)' ng-repeat="item in resume"> 
+                    <span>{{item.name}}</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div ng-show="list" class='panel panel-default'>
+        <div class='panel-heading'>Tests you can review</div>
+        <div class='panel-body'>
+            <div ng-show="list" class='list-group'>
+                <a class='list-group-item' ng-click='goto(item)' ng-repeat="item in review"> 
+                    <span>{{item.name}}</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div ng-show="list" class='panel panel-default'>
+        <div class='panel-heading'>Tests you submitted, but not open for review, yet.</div>
+        <div class='panel-body'>
+            <div ng-show="list" class='list-group'>
+                <a class='list-group-item' ng-repeat="item in submitted"> 
+                    <span>{{item.name}}</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+
+
     <div ng-hide='valid'>
         <h3>You are not logged in, or your session has expired. Please log
             in.</h3>

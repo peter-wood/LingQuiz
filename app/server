@@ -16,7 +16,7 @@ var userdb = require(__dirname + '/lib/v2userdb.js');
 var cookieParser = require('cookie-parser');
 
 userdb.init();
-userdb.printAll();
+// userdb.printAll();
 
 var app = express();
 
@@ -55,12 +55,13 @@ var authenticate = require(__dirname + '/routes/authenticate');
 var docs = require(__dirname + '/routes/docs');
 var quizzes = require(__dirname + '/routes/quizzes');
 var getset = require(__dirname + '/routes/getSet');
-var check = require(__dirname + '/routes/check');
 var update = require(__dirname + '/routes/update');
-var quiz = require(__dirname + '/routes/quiz');
-var checkRecords = require(__dirname + '/routes/checkRecords');
-var setRecords = require(__dirname + '/routes/setRecords');
-var getResumeSet = require(__dirname + '/routes/getResumeSet');
+var modStatus = require(__dirname + '/routes/modStatus');
+var resetQuestions = require(__dirname + '/routes/resetQuestions');
+// var quiz = require(__dirname + '/routes/quiz');
+// var checkRecords = require(__dirname + '/routes/checkRecords');
+// var setRecords = require(__dirname + '/routes/setRecords');
+// var getResumeSet = require(__dirname + '/routes/getResumeSet');
 
 app.use('/auth', authenticate);
 app.use('/book_res', docs);
@@ -68,12 +69,14 @@ app.use('/handouts_res', docs);
 app.use('/slides_res', docs);
 app.use('/quizzes_res', quizzes);
 app.use('/getset', getset);
-app.use('/check', check);
 app.use('/update', update);
-app.use('/quiz_res', quiz);
-app.use('/checkrecords', checkRecords);
-app.use('/setrecords', setRecords);
-app.use('/getresumeset', getResumeSet);
+app.use('/modstatus', modStatus);
+app.use('/resetquestions', resetQuestions);
+// app.use('/check', check);
+// app.use('/quiz_res', quiz);
+// app.use('/checkrecords', checkRecords);
+// app.use('/setrecords', setRecords);
+// app.use('/getresumeset', getResumeSet);
 app.use('/resources/book', express.static(__dirname + '/resources/book/'));
 app.use('/resources/handouts', express.static(__dirname + '/resources/handouts/'));
 app.use('/resources/slides', express.static(__dirname + '/resources/slides/'));

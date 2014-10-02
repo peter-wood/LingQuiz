@@ -3,28 +3,67 @@
 /* Controllers */
 
 angular.module('myApp.quizstuff', [])
-    .controller('QuizzesCtrl', ['$scope', 'myFac', '$state', '$rootScope', function($scope, myFac, $state, $rootScope) {
+    .controller('QuizzesCtrl', ['$scope', '$http', '$state', '$rootScope', function($scope, $http, $state, $rootScope) {
+        if ($scope.clicked === true) return;
+        console.log('QuizzesCtrl called');
+        $scope.clicked = true;
+
         $scope.goto = function(state) {
             console.log('goto: ', state);
             $rootScope.currentQuiz = state;
             $state.go('quiz');
         }
 
-        if ($scope.clicked === true) return;
-        console.log('QuizzesCtrl called');
-        var subdir = 'quizzes/';
-        var request = 'quizzes_res';
-        var fileType = 'na';
-        myFac.init(subdir, request, fileType, $scope);
-        $scope.clicked = true;
-    }])
+		$scope.list = false;
+		$scope.valid = false;
+		$scope.result = null;
+
+        $http.jsonp(encodeURI('@@nodeserver@@:@@nodeport@@/quizzes_res?callback=JSON_CALLBACK'))
+         .success(function(data, status, headers, config) {
+             if (data.result === -1) {
+                console.log('got an error');
+                $scope.list = false;
+                $scope.valid=false;
+             return;
+             } else {
+                console.log('got data: %s', JSON.stringify(data.result));
+                $scope.valid=true;
+                $scope.list=true;
+                $scope.result = data.result;
+                $scope.take = [];
+                $scope.resume = [];
+                $scope.review = [];
+                $scope.submitted = [];
+                for (var x = 0; x < $scope.result.length; ++x) {
+                    var current = $scope.result[x];
+                    if (!current.completed && !current.started && current.open) {
+                        $scope.take.push(current);
+                    } else 
+                    if (!current.completed && current.started && current.canResume) {
+                        $scope.resume.push(current);
+                    } else 
+                    if (current.completed && current.canReview) {
+                        $scope.review.push(current);
+                    } else 
+                    if (current.completed && !current.canReview) {
+                        $scope.submitted.push(current);
+                    }
+                 }
+             }
+         });
+     }])
 
     .controller('ModalInstanceCtrl', ['$scope', '$modalInstance',  function ($scope, $modalInstance) {
-        $scope.ok = function () {
-            $modalInstance.close();
+        $scope.closeImage = function () {
+            $modalInstance.dismiss();
         };
+    }])
 
-        $scope.cancel = function () {
+    .controller('SubmitCtrl', ['$scope', '$modalInstance', function($scope, $modalInstance) {
+        $scope.okSubmit = function() {
+            $modalInstance.close('ok');
+        };
+        $scope.cancelSubmit = function() {
             $modalInstance.dismiss();
         };
     }])
@@ -32,7 +71,7 @@ angular.module('myApp.quizstuff', [])
     .controller('QuizCtrl', ['$state', '$scope', '$modal', '$stateParams', '$http', '$rootScope', '$interval', 
         function($state, $scope, $modal, $stateParams, $http, $rootScope, $interval) {
 
-    var getQuestions = function() {
+        var getQuestions = function() {
             if ($scope.loaded == true) {
                 console.log('questions already loaded');
                 return;
@@ -50,13 +89,11 @@ angular.module('myApp.quizstuff', [])
                         return;
                     } else {
                         console.log('got quesions: ', QuizRecord);
-                        $scope.start = true;
                         $scope.valid = true;
                         $scope.questions = QuizRecord;
-                        $scope.time = new Date($rootScope['currentQuiz']['time'] * 1000 * 60);
-                        console.log('time: ', $scope.time, 'saved', $rootScope['currentQuiz']['time']);
                         $scope.numQuestions = $rootScope['currentQuiz']['numQuestions'];
-                        // $scope.nextQuestion(0);
+                        updateView();
+                        if ($scope.review) $scope.nextQuestion(0);
                     }
                 });
         }
@@ -76,7 +113,27 @@ angular.module('myApp.quizstuff', [])
             }
         }
 
-        var checkAnswer = function() {
+        $scope.resetQuestions = function() {
+            var data = {}
+            data.index = $rootScope['currentQuiz']['index'];
+            if ($scope.canRetake) {
+                console.log('calling reset: ', data);
+                $http.jsonp('@@nodeserver@@:@@nodeport@@/resetQuestions?data=' 
+                + encodeURIComponent(JSON.stringify(data)) 
+                +'&callback=JSON_CALLBACK')
+                .success(function(upRes) {
+                    if(upRes.data != 1) {
+                        console.log('something went wrong updating answers');
+                        return;
+                    } else { 
+                        console.log('questions reset ', upRes);
+                        $state.go('quizzes');
+                    }
+                });
+            }
+        }
+
+        var updateUserDb = function() {
             var data = {}
             data.index = $rootScope['currentQuiz']['index'];
             data.number = $scope.currentIndex;
@@ -112,13 +169,28 @@ angular.module('myApp.quizstuff', [])
                 $scope.back = false;
             }
             console.log('question: ', $scope.questions[$scope.currentIndex]);
-            var cs = 'list-group-item ng-binding ng-scope';
-            var cn = 'list-group-item ng-binding ng-scope list-group-item-info';
+            var cEmpty = 'list-group-item ng-binding ng-scope';
+            var cAnswered = 'list-group-item ng-binding ng-scope list-group-item-info';
+            var cCorrect = 'list-group-item ng-binding ng-scope list-group-item-success';
+            var cWrong = 'list-group-item ng-binding ng-scope list-group-item-danger';
+            var answer = $scope.questions[$scope.currentIndex]['answer'];
+            var correct = $scope.questions[$scope.currentIndex]['correct'];
+            var rightAnswer = $scope.questions[$scope.currentIndex]['rightAnswer'];
             for(var x = 1; x < 6; ++x) {
-                if ($scope.questions[$scope.currentIndex]['answer'] === x) {
-                    document.getElementById('b' + x.toString()).className = cn;
+                if (answer === x) {
+                    document.getElementById('b' + x.toString()).className = cAnswered;
                 } else {
-                    document.getElementById('b' + x.toString()).className = cs;
+                    document.getElementById('b' + x.toString()).className = cEmpty;
+                }
+            }
+            if ($scope.review) {
+                for(var x = 1; x < 6; ++x) {
+                    if ((answer === x) && (rightAnswer != answer)) {
+                        document.getElementById('b' + x.toString()).className = cWrong;
+                    }
+                    if (rightAnswer === x) {
+                        document.getElementById('b' + x.toString()).className = cCorrect;
+                    }
                 }
             }
         }
@@ -131,34 +203,99 @@ angular.module('myApp.quizstuff', [])
         var promise = undefined;
 
         $scope.startQuiz = function() {
-            $scope.alerts = [];
-            $scope.warning = false;
-            promise = $interval( function() {
-                $scope.time = $scope.time - 1000;
-                if ($scope.time <= 0) {
-                    var msg = null;
-                    if ($scope.save) {
-                        msg = 'The time is up. All your answers have been saved.';
-                    } else {
-                        msg = 'The time is up. Navigate back to "Quizzes" and try again.';
-                    }
-                    $scope.alerts.push({'msg': msg, 'type': 'danger'});
+            if ($scope.hasStarted) {
+                return;
+            }
+            $scope.hasStarted = true;
+           $scope.alerts = [];
+           $scope.warning = false;
+           var myTime = new Date($scope.time * 1000 * 60);
+           if ($scope.started === undefined) {
+               $scope.timeLeft = myTime;
+           } else {
+               var limit = Date.parse($scope.started) + Date.parse(myTime); 
+               var left = limit - Date.now();
+               $scope.timeLeft = new Date(left);
+               if ($scope.timeLeft <= 0) {
+                    $scope.alerts.push({'msg': 'Sorry, the time expired at ' +
+                    new Date(limit), 'type': 'danger'});
+                    $scope.disabled = true;
+                    if (promise != undefined) {
+                        $interval.cancel(promise);
+                        promise = undefined;
+                    } 
+                    return;
+               }
+           }
+           promise = $interval( function() {
+                $scope.timeLeft = $scope.timeLeft - 1000;
+                if ($scope.timeLeft <= 0) {
+                    $scope.alerts.push({'msg': 'The time is up', 'type': 'danger'});
                     $scope.stop('timeOut');
                 }
            }, 1000);
-           $scope.nextQuestion('0');
+           if ($scope.started) { // set started only once
+                $scope.nextQuestion(0);
+           } else {
+               var datenow = new Date();
+               console.log('Setting started to: ', datenow);
+               var data = {};
+               data.index = $rootScope['currentQuiz']['index'];
+               data.toMod = [{'key': 'started', 'value': datenow}];
+               $http.jsonp('@@nodeserver@@:@@nodeport@@/modstatus?data=' 
+                    + encodeURIComponent(JSON.stringify(data)) 
+                    +'&callback=JSON_CALLBACK')
+                    .success(function(upRes) {
+                        if(upRes.data.updated != 1) {
+                            console.log('something went wrong updating answers');
+                            return;
+                        } else { 
+                            console.log('answer updated', upRes);
+                            $scope.nextQuestion('0');
+                        }
+                    });
+            }
+        }
+
+        $scope.submit = function() {
+            console.log('submitting results');
+            $scope.stop('submit');
         }
 
         $scope.stop = function(reason) {
-            if (reason === 'submit') {
-                $scope.alerts.push({'msg': 'Thank you for your submission. The results will be ' + 
-                'available in a few days. You can resume the quiz by reloading the page', 'type': 'danger'});
+            if ($scope.isStopped) {
+                return;
             }
-	        if (promise != undefined) {
+            $scope.isStopped = true;
+            $scope.disabled = true;
+           if (promise != undefined) {
 		        $interval.cancel(promise);
       		    promise = undefined;
-		        $scope.disabled = true;
-	        }
+	       } 
+           if (reason === 'timeOut' || reason === 'submit') {
+                var data = {};
+                data.index = $rootScope['currentQuiz']['index'];
+                data.toMod = [];
+                data.toMod.push({'key': 'completed', 'value': true});
+                data.toMod.push({'key': 'canResume', 'value': false});
+                $http.jsonp('@@nodeserver@@:@@nodeport@@/modstatus?data=' 
+                    + encodeURIComponent(JSON.stringify(data)) 
+                    +'&callback=JSON_CALLBACK')
+                .success(function(upRes) {
+                    if(upRes.data.updated != 1) {
+                        console.log('something went wrong updating answers');
+                        return;
+                    } else { 
+                        console.log('answer updated', upRes);
+                        $scope.alerts.push({'msg': 'All of your answers have been saved.', 'type': 'success'});
+                    }
+                });
+            }
+            if ($scope.type === 'practice') {
+                $scope.alerts.push({'msg': 'You can go back to the "Quizzes" page and check your results.', 'type': 'info'});
+            } else {
+                $scope.alerts.push({'msg': 'You can check your results in a few days.', 'type': 'info'});
+            }
         }
 
         $scope.$on('$destroy', function () {
@@ -177,20 +314,37 @@ angular.module('myApp.quizstuff', [])
                     document.getElementById('b' + x.toString()).className = cs;
                 }
             }
-            checkAnswer();
+            updateUserDb();
         }
       
-        $scope.open = function (size) {
+        $scope.open = function () {
             var modalInstance = $modal.open({
-                template:  '<div class="modal-header"> <h3 class="modal-title">Click outside the image to close</h3>' +
-                    '</div> <div class="modal-body"><img ng-src="'+$scope.url+$scope.questions[$scope.currentIndex]["resource"] + 
-		    '" class="img-responsive" style="display:block;margin-left:auto;margin-right:auto;max-height:600px;"/> </div>',
+                template:  '<div class="modal-header"> <span class="pull-right modal-title"><a ng-click="console.log(1234);closeImage()">' +
+                            'Close</a></span></div> <div class="modal-body"><img ng-src="'+
+                            $scope.url+$scope.questions[$scope.currentIndex]["resource"] + 
+                           '" class="img-responsive" style="display:block;margin-left:auto;margin-right:auto;max-height:600px;"/> </div>',
                 controller: 'ModalInstanceCtrl',
-                size: 'lg',
+                size: 'lg'
             });
         }
 
-
+        $scope.openConfirm = function() {
+            var instance = $modal.open({
+                template: '<div class="modal-header"> <h3 class="modal-title">Submit/</h3></div><div class="modal-body">' +
+                    '<p>If you click "ok" your quiz will be submitted and you will not be able to make any more changes.' +  
+                    'If you got here by mistake, click "cancel" and you can continue working on your quiz.</p>' +
+                    '</div><div class="modal-footer"><button class="btn btn-primary" ng-click="okSubmit()">OK</button>' +
+                    '<button class="btn btn-warning" ng-click="cancelSubmit()">Cancel</button></div>',
+                controller: 'SubmitCtrl',
+                size: 'md'
+                });
+            instance.result.then(function(res) { 
+                console.log('modal returned: ', res);
+                if (res === 'ok') $scope.submit();
+            }, function() {
+                console.log('submit cancelled');
+            });
+        }
 
         var initialize = function() {
             console.log('in init rootscope: ', $rootScope['currentQuiz']);
@@ -200,11 +354,29 @@ angular.module('myApp.quizstuff', [])
                 $scope.alerts.push({'msg': 'No quiz specified Go back and select a quiz', 'type': 'warning'});
             } else {
                 $scope.quiz = $rootScope['currentQuiz']['name'];
+                $scope.type = $rootScope['currentQuiz']['type'];
+                $scope.completed = $rootScope['currentQuiz']['completed'];
+                $scope.canReview = $rootScope['currentQuiz']['canReview'];
+                $scope.canResume = $rootScope['currentQuiz']['canResume'];
+                $scope.canRetake = $rootScope['currentQuiz']['canRetake'];
+                $scope.started = $rootScope['currentQuiz']['started'];
+                $scope.time = $rootScope['currentQuiz']['time'];
+                if ($scope.completed && $scope.canReview){ 
+                    $scope.review = true; 
+                    $scope.correctMessage = 'Correct';
+                    $scope.disabled = true;
+                    $scope.start = false;
+                } else {
+                    $scope.start = true;
+                    $scope.review = false; 
+                    $scope.correctMessage = 'Answered';
+                }
+                if (!$scope.started) $scope.startText = 'Start';
+                if ($scope.started) $scope.startText = 'Resume';
                 $scope.alerts.push({'msg': 'Accessing quiz: ' + $scope.quiz, 'type': 'info'});
                 getQuestions();
             }
         }
-
 
 
         // main init vars, check if we need to resume, otherwise start a new
@@ -219,9 +391,9 @@ angular.module('myApp.quizstuff', [])
         $scope.back = false; // back button - ditto for first question
         $scope.gotRight = 0; // counter for correct answers in practice mode
         $scope.answered = 0; // counter for answered questions in quiz mode
-        $scope.time = null;  // init timer 
+        $scope.time = null;  // will be set to time in minutes from config file 
+        $scope.timeLeft = null;  // will be set at start and calculated on the basis of records 
         $scope.save = null;  // set true in quiz mode - we record all answers no matter what 
-        $scope.correctMessage = 'Correct'; // is either correct or Answered - display in view and adapt to mode
         $scope.retake = null; // is false when in quiz mode
         $scope.numQuestions = null; // questions in quiz set
         $scope.hash = null;  // current hash
@@ -232,6 +404,7 @@ angular.module('myApp.quizstuff', [])
         $scope.noRestart = false;
         $scope.quiz = null; 
         $scope.reloadProblem = false;
+        $scope.startText = null;
         initialize(); // call init
     }]);
 

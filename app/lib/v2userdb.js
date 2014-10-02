@@ -8,14 +8,16 @@ var config = require('./config');
 var myQuestionSchema = mongoose.Schema( {
     myQuestion: {type: mongoose.Schema.Types.ObjectId, ref: 'question'},
     answer: {type: Number, default: 0},
+    correct: {type: Boolean, default: false},
     lastaccess: {type: Date, default: Date.now}});
 
 myQuestionSchema.methods.print = function() {
     console.log('Question: ') // , this.myQuestion);
     this.myQuestion.print();
     console.log('Answer: ', this.answer);
+    console.log('Correct: ', this.correct);
     console.log('Last Access: ', this.lastaccess);
-    console.log('Config: ', this.myQuestion.getConf());
+    // console.log('Config: ', this.myQuestion.getConf());
 }
 
 var myQuizSchema = mongoose.Schema( {
@@ -26,6 +28,8 @@ var myQuizSchema = mongoose.Schema( {
     time: Number,
     started: Date,
     numQuestions: Number,
+    total: Number,
+    score: Number,
     completed: Boolean,
     canResume: Boolean,
     canRetake: Boolean,
@@ -41,6 +45,8 @@ myQuizSchema.methods.print = function() {
     console.log('time: ', this.time);
     console.log('started: ', this.started);
     console.log('numQuestions: ', this.numQuestions);
+    console.log('total: ', this.total);
+    console.log('score: ', this.score);
     console.log('completed: ', this.completed);
     console.log('canResume: ', this.canResume);
     console.log('canRetake: ', this.canRetake);
@@ -167,26 +173,74 @@ var get = function(nsid, cb) {
     });
 }
 
+var resetQuestions = function(nsid, index, cb) {
+    get(nsid, function(u) {
+        if (u['quizzes'][index]['canRetake'] === false) {
+            result = -1;
+            cb(0, result);
+        }
+        for (var x = 0; x < u['quizzes'][index]['questionSet'].length; ++x) {
+            u['quizzes'][index]['questionSet'][x]['answer'] = 0;
+            u['quizzes'][index]['questionSet'][x]['correct'] = false;
+        }
+        u['quizzes'][index]['completed'] = false;
+        u['quizzes'][index]['started'] = undefined;
+        saveUser(u, function(u) {
+            cb(0,1);
+        });
+    });
+}
+
+
 var modQuestion = function(nsid, index, number, answer, cb) {
     get(nsid, function(u) {
         result = {};
         u['quizzes'][index]['questionSet'][number]['answer'] = answer;
         u['quizzes'][index]['questionSet'][number]['lastaccess'] = Date.now();
-        if (u['quizzes'][index]['canReview']) {
-            result.correct = u['quizzes'][index]['questionSet'][number]['myQuestion'].check(answer);
-        }
+        u['quizzes'][index]['questionSet'][number]['correct'] = u['quizzes'][index]['questionSet'][number]['myQuestion'].check(answer);
+        u = calcScore(u, index);
         result.updated = 1;
         saveUser(u, function(u) {
-            u['quizzes'][index].print();
+            //u['quizzes'][index].print();
             cb(0, result);
         });
     });
 }
+
+var calcScore = function(u, index) {
+    // console.log('calcScore called with: ', u);
+    var count = 0;
+    for (var x = 0; x < u['quizzes'][index]['questionSet'].length; ++x) {
+        if(u['quizzes'][index]['questionSet'][x]['correct']) {
+            ++count;
+        }
+    }
+    u['quizzes'][index]['score'] = count;
+    console.log('calcScore Score now: ', count);
+    return u;
+}
         
-
-
-
-
+var modStatus = function(nsid, index, toMod, cb) {
+    get(nsid, function(u) {
+        result = {};
+        for (var x = 0; x < toMod.length; ++x) {
+            u['quizzes'][index][toMod[x]['key']] = toMod[x]['value'];
+        }
+        u = calcScore(u, index);
+        saveUser(u, function(uu) {
+            result.updated = 1;
+            result.toMod = []
+            for (var x = 0; x < 0; ++x) {
+                var obj = {};
+                obj.key = toMod[x]['key']; 
+                obj.value = uu['quizzes'][index][toMod[x]['key']];
+                console.log('modStatus changed ',toMod[x]['key'], ' to ', uu['quizzes'][index][toMod[x]['key']]);
+                result.toMod.push(obj);
+            }
+            cb(0, result);
+        });
+    });
+}
 
 var getSet = function(nsid, index, cb) {
     console.log('get set called with: ', nsid, index);
@@ -205,6 +259,10 @@ var getSet = function(nsid, index, cb) {
             obj.opt4 = u['quizzes'][index]['questionSet'][x]['myQuestion']['opt4'];
             obj.opt5 = u['quizzes'][index]['questionSet'][x]['myQuestion']['opt5'];
             obj.answer = u['quizzes'][index]['questionSet'][x]['answer'];
+            if (u['quizzes'][index]['completed'] && u['quizzes'][index]['canReview']) {
+                obj.rightAnswer = u['quizzes'][index]['questionSet'][x]['myQuestion']['correct'];
+                obj.correct = u['quizzes'][index]['questionSet'][x]['correct'];
+            }
             result.push(obj);
         }
         cb(0, result);
@@ -217,6 +275,19 @@ var getQuizzes = function(nsid, cb) {
    var send = function() {
        console.log('userdb.getQuizzes saving record'); 
        // console.log(currUser);
+       for (var x = 0; x < currUser.quizzes.length; ++x)  {
+           if ((currUser.quizzes[x]['completed'] === false) && (currUser.quizzes[x]['started'] != undefined)) {
+               console.log('see whether we have to change the completed flag');
+               var now = Date.now();
+               var limit = Date.parse(currUser.quizzes[x]['started']) + (currUser.quizzes[x]['time'] * 60 * 1000);
+               console.log('started, time, now, limit', currUser.quizzes[x]['started'], currUser.quizzes[x]['time'], now, limit);
+               if (now > limit) {
+                   console.log('need to change');
+                   currUser.quizzes[x]['completed'] = true;
+               }
+
+           }
+       }
        saveUser(currUser, function(u) {
            // console.log('save returned: ************** ', u);
            var result = [];
@@ -272,6 +343,7 @@ var getQuizzes = function(nsid, cb) {
         u['quizzes'][index]['open'] = all[key]['open'];
         u['quizzes'][index]['time'] = all[key]['time'];
         u['quizzes'][index]['numQuestions'] = all[key]['numQuestions'];
+        u['quizzes'][index]['total'] = all[key]['total'];
         u['quizzes'][index]['canRetake'] = all[key]['retake'];
         u['quizzes'][index]['canReview'] = all[key]['review'];
          
@@ -293,7 +365,7 @@ var getQuizzes = function(nsid, cb) {
                 u.quizzes.push({'name': key, questionSet: []});
                 update(u, u.quizzes.length - 1, key);
                 u['quizzes'][u.quizzes.length - 1]['attempt'] = 0;
-                u['quizzes'][u.quizzes.length - 1]['started'] = -1;
+                u['quizzes'][u.quizzes.length - 1]['started'] = undefined;
                 u['quizzes'][u.quizzes.length - 1]['completed'] = false;
                 u['quizzes'][u.quizzes.length - 1]['canResume'] = true;
                 toAdd.push({index: u.quizzes.length - 1, 'qset': key, 'n': all[key]['numQuestions']});
@@ -338,6 +410,8 @@ userdb.printAll = printAll;
 userdb.getQuizzes = getQuizzes;
 userdb.getSet = getSet;
 userdb.modQuestion = modQuestion;
+userdb.modStatus = modStatus;
+userdb.resetQuestions = resetQuestions;
 
 module.exports = userdb;
 
