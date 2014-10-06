@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+var util = require('util');
 
 // create global db connection
 var config = require(__dirname + '/lib/config.js');
@@ -27,7 +28,7 @@ var logAll = function(req, res, next) {
 		key = req.cookies['myLingKey'];
 	}
 	console.log('key: ' + key);
-
+        console.log('path: ', req.path);
 	re = /^\/resources/
 	if (re.test(req.path)) {
 		console.log('Attempt to access resources. key: %s', key);
@@ -50,6 +51,18 @@ setInterval(auth.purgeAuth, config.purgeInterval * 1000);
 
 
 var fs = require('fs');
+var nodelog = fs.createWriteStream('/home/peter/node.log', {flags: 'a'});
+
+console.log = function(d) {
+  nodelog.write(util.format(d) + '\n');
+  process.stdout.write(util.format(d) + '\n');
+}
+
+
+process.on('uncaughtException', function(err) {
+  console.log('Caught exception:' + err);
+});
+
 
 var authenticate = require(__dirname + '/routes/authenticate');
 var docs = require(__dirname + '/routes/docs');
