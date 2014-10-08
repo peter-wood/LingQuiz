@@ -157,7 +157,7 @@ var printAll = function() {
 
 var get = function(nsid, cb) {
     user.findOne({'nsid': nsid}, function(err, u) {
-        if (err) {
+        if (err || !u) {
             console.log('Error: ', err, u);
             cb(false);
         } else {
