@@ -33,11 +33,15 @@
 				<button ng-show = 'review && !questions[currentIndex]["correct"]' type='button' class='btn btn-danger'><span class='glyphicon glyphicon-remove'></span></button>
 				<button ng-show = 'review && questions[currentIndex]["correct"]' type='button' class='btn btn-success'><span class='glyphicon glyphicon-ok'></span></button>
 				<button ng-show = '!start && next' type='button' class='btn btn-primary' ng-click="nextQuestion('+')">Next Question</button>
-                <span class='pull-right'><button ng-show = '!review && !disabled && !start' type='button' class='btn btn-warning' ng-click="openConfirm()">Submit</button></span>
+                <span class='pull-right'><button ng-show = '!review && !disabled && !start && (answered === numQuestions)' type='button' class='btn btn-warning' ng-click="openConfirm()">Submit</button></span>
                 <span class='pull-right'><button ng-show = 'review && canRetake' type='button' class='btn btn-warning' ng-click="resetQuestions()">Reset</button></span>
 		       </div>
 		</div>
 	</div>
+    <div ng-show='start'>
+        <h3>Answer all of the questions. Once all questions have been answered,
+            you can submit them.</h3>
+    </div>
     <div ng-show='start && type === "quiz"'>
         <h3>Once you click 'Start', all your answers will be recorded. You will
             not be able to stop the timer, and you cannot retake this quiz.
