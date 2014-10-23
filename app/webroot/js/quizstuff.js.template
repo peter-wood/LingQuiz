@@ -112,7 +112,7 @@ angular.module('myApp.quizstuff', [])
                 if ($scope.questions[x]['answer'] > 0) ++$scope.answered;
             }
             if ($scope.gotRight === $scope.numQuestions) {
-                $scope.alerts.push({'msg': 'Well done. You answered all the questions. You can leave this page now.', 'type': 'success'});
+                $scope.alerts.push({'msg': 'Well done. You answered all the questions correctly.', 'type': 'success'});
                 $scope.stop('complete');
             }
         }
@@ -155,7 +155,10 @@ angular.module('myApp.quizstuff', [])
                         $scope.questions[$scope.currentIndex]['correct'] = upRes.data.correct;
                         updateView();
                     }
-                });
+                })
+	        .error(function(e) {
+			console.log('error updating. code: ', e);
+		}) ;
         }
 
         $scope.nextQuestion = function(direction) {
