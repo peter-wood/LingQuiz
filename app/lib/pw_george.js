@@ -11,8 +11,10 @@ config.purgeInterval = 30; // in seconds
 config.quizzes = {
     'Practice-1': { 'type': 'practice', 'open': true, 'time': 15, 'numQuestions': 10, 'retake': true, 'review': true },
     'Practice-2': { 'type': 'practice', 'open': true, 'time': 15, 'numQuestions': 10, 'retake': true, 'review': true },
+    'Practice-3': { 'type': 'practice', 'open': true, 'time': 15, 'numQuestions': 10, 'retake': true, 'review': true },
     'Quiz-1': { 'type': 'quiz', 'open': false, 'time': 50, 'numQuestions': 30, 'retake': false, 'review': true },
-    'Quiz-2': { 'type': 'quiz', 'open': false, 'time': 50, 'numQuestions': 30, 'retake': false, 'review': true }
+    'Quiz-2': { 'type': 'quiz', 'open': false, 'time': 50, 'numQuestions': 30, 'retake': false, 'review': true },
+    'Quiz-3': { 'type': 'quiz', 'open': false, 'time': 50, 'numQuestions': 30, 'retake': false, 'review': true }
 };
 // @@webroot@@=/storage
 // @@webdir@@=Ling111
