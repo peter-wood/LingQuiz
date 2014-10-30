@@ -10,7 +10,11 @@ config.loginValidFor = 45; // in minutes
 config.purgeInterval = 30; // in seconds
 config.quizzes = {
     'Practice-1': { 'type': 'practice', 'open': true, 'time': 15, 'numQuestions': 10, 'retake': true, 'review': true },
-    'Quiz-1': { 'type': 'quiz', 'open': true, 'time': 50, 'numQuestions': 30, 'retake': false, 'review': false }
+    'Practice-2': { 'type': 'practice', 'open': true, 'time': 15, 'numQuestions': 10, 'retake': true, 'review': true },
+    'Practice-3': { 'type': 'practice', 'open': true, 'time': 15, 'numQuestions': 10, 'retake': true, 'review': true },
+    'Quiz-1': { 'type': 'quiz', 'open': true, 'time': 50, 'numQuestions': 30, 'retake': false, 'review': false },
+    'Quiz-2': { 'type': 'quiz', 'open': true, 'time': 50, 'numQuestions': 30, 'retake': false, 'review': false },
+    'Quiz-3': { 'type': 'quiz', 'open': true, 'time': 50, 'numQuestions': 30, 'retake': false, 'review': false }
 };
 // @@webroot@@=/var/www/localhost/htdocs
 // @@webdir@@=Ling111_doctor
