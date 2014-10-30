@@ -53,10 +53,10 @@ setInterval(auth.purgeAuth, config.purgeInterval * 1000);
 var fs = require('fs');
 var nodelog = fs.createWriteStream('/home/peter/node.log', {flags: 'a'});
 
-//console.log = function(d) {
-//  nodelog.write(util.format(d) + '\n');
-//  process.stdout.write(util.format(d) + '\n');
-//}
+console.log = function(d) {
+  nodelog.write(util.format(d) + '\n');
+  process.stdout.write(util.format(d) + '\n');
+}
 
 
 process.on('uncaughtException', function(err) {
