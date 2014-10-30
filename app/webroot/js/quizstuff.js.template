@@ -72,8 +72,8 @@ angular.module('myApp.quizstuff', [])
         };
     }])
 
-    .controller('QuizCtrl', ['$state', '$scope', '$modal', '$stateParams', '$http', '$rootScope', '$interval', 
-        function($state, $scope, $modal, $stateParams, $http, $rootScope, $interval) {
+    .controller('QuizCtrl', ['$state', '$scope', '$modal', '$stateParams', '$http', '$rootScope', '$interval', '$timeout', 
+        function($state, $scope, $modal, $stateParams, $http, $rootScope, $interval, $timeout) {
 
         var getQuestions = function() {
             if ($scope.loaded == true) {
@@ -149,8 +149,11 @@ angular.module('myApp.quizstuff', [])
                 .success(function(upRes) {
                     if(upRes.data.updated != 1) {
                         console.log('something went wrong updating answers');
+                        $scope.alerts.push({'msg': 'Authentication problem. Log in and resume the quiz.', 'type': 'danger'});
+                        $scope.noConnection = true;
                         return;
                     } else { 
+                        $scope.noConnection = false;
                         console.log('answer updated', upRes);
                         $scope.questions[$scope.currentIndex]['correct'] = upRes.data.correct;
                         updateView();
@@ -158,10 +161,14 @@ angular.module('myApp.quizstuff', [])
                 })
 	        .error(function(e) {
 			console.log('error updating. code: ', e);
+                        $scope.alerts.push({'msg': 'Connection problem. Cannot save your answer.', 'type': 'danger'});
+                        $scope.noConnection = true;
 		}) ;
         }
 
+
         $scope.nextQuestion = function(direction) {
+            if($scope.noConnection) return;
             console.log('nextQuestion called with: ', direction);
             $scope.start = false;
             $scope.next = true;
@@ -175,33 +182,62 @@ angular.module('myApp.quizstuff', [])
                 $scope.currentIndex = 0;
                 $scope.back = false;
             }
-            console.log('question: ', $scope.questions[$scope.currentIndex]);
-            var cEmpty = 'list-group-item ng-binding ng-scope';
-            var cAnswered = 'list-group-item ng-binding ng-scope list-group-item-info';
-            var cCorrect = 'list-group-item ng-binding ng-scope list-group-item-success';
-            var cWrong = 'list-group-item ng-binding ng-scope list-group-item-danger';
-            var answer = $scope.questions[$scope.currentIndex]['answer'];
-            var correct = $scope.questions[$scope.currentIndex]['correct'];
-            var rightAnswer = $scope.questions[$scope.currentIndex]['rightAnswer'];
-            for(var x = 1; x < 6; ++x) {
-                if (answer === x) {
-                    document.getElementById('b' + x.toString()).className = cAnswered;
-                } else {
-                    document.getElementById('b' + x.toString()).className = cEmpty;
-                }
-            }
-            if ($scope.review) {
-                for(var x = 1; x < 6; ++x) {
-                    if ((answer === x) && (rightAnswer != answer)) {
-                        document.getElementById('b' + x.toString()).className = cWrong;
-                    }
-                    if (rightAnswer === x) {
-                        document.getElementById('b' + x.toString()).className = cCorrect;
-                    }
-                }
-            }
+            var data = $scope.questions[$scope.currentIndex];
+            $http.jsonp('@@nodeserver@@:@@nodeport@@/getNext?data=' 
+                + encodeURIComponent(JSON.stringify(data)) 
+                +'&callback=JSON_CALLBACK')
+                    .error(function(err) {
+                       $scope.alerts.push({'msg': 'Connection problem. Reconnect to the internet and resume quiz.', 'type': 'danger'});
+                       $scope.noConnection = true;
+                       console.log('Error in getNext: ', err);
+                     })
+                    .success(function(nextRes) {
+                        if(nextRes.data === -1) {
+                            $scope.alerts.push({'msg': 'Connection problem. Reconnect to internet and resume quiz.', 'type': 'danger'});
+                            $scope.noConnection = true;
+                            console.log('something went wrong in getNext');
+                            return;
+                        } else { 
+                            $scope.noConnection=false;
+                            console.log('getNext Success');
+                            $scope.myQuestion = nextRes['data'];
+                            var cEmpty = 'list-group-item ng-binding ng-scope';
+                            var cAnswered = 'list-group-item ng-binding ng-scope list-group-item-info';
+                            var cCorrect = 'list-group-item ng-binding ng-scope list-group-item-success';
+                            var cWrong = 'list-group-item ng-binding ng-scope list-group-item-danger';
+                            var answer = $scope.myQuestion['answer'];
+                            var correct = $scope.myQuestion['correct'];
+                            var rightAnswer = $scope.myQuestion['rightAnswer'];
+                            $timeout(function() {
+                              for(var x = 1; x < 6; ++x) {
+                                  try {
+                                  if (answer === x) {
+                                      document.getElementById('b' + x.toString()).className = cAnswered;
+                                  } else {
+                                      document.getElementById('b' + x.toString()).className = cEmpty;
+                                  }
+                                  } catch(e) {
+                                  console.log('some element does not exist');
+                                  }
+                              }
+                              if ($scope.review) {
+                                  for(var x = 1; x < 6; ++x) {
+                                      try {
+                                      if ((answer === x) && (rightAnswer != answer)) {
+                                          document.getElementById('b' + x.toString()).className = cWrong;
+                                      }
+                                      if (rightAnswer === x) {
+                                          document.getElementById('b' + x.toString()).className = cCorrect;
+                                      }
+                                      } catch(e) {
+                                      console.log('some element does not exist.');
+                                      }
+                                  }
+                              }             
+                            }, 100);
+                        }
+                    });
         }
-
 
         $scope.closeAlert = function(index) {
 	        $scope.alerts.splice(index,1);
@@ -316,11 +352,15 @@ angular.module('myApp.quizstuff', [])
             var cs = 'list-group-item ng-binding ng-scope';
             var cn = 'list-group-item ng-binding ng-scope list-group-item-info';
             for(var x = 1; x < 6; ++ x) {
+            try {
                 if (x === sub) {
                     document.getElementById('b' + x.toString()).className = cn;
                 } else {
                     document.getElementById('b' + x.toString()).className = cs;
                 }
+            } catch(e) {
+              console.log('some element does not exist');
+            }
             }
             updateUserDb();
         }
@@ -407,7 +447,9 @@ angular.module('myApp.quizstuff', [])
         $scope.alerts = [];  // holds messages
         $scope.quiz = null; 
         $scope.reloadProblem = false;
+        $scope.noConnection = false;
         $scope.startText = null;
+        $scope.myQuestion = null;
         initialize(); // call init
     }]);
 
